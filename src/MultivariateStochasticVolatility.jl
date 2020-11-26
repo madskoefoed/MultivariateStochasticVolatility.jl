@@ -1,8 +1,8 @@
 module MultivariateStochasticVolatility
 
 # Import
-using LinearAlgebra#: diag
-using Distributions#: Normal, MvNormal, MvTDist
+using LinearAlgebra: diag, kron
+using Distributions: Normal, MvNormal
 using StatsBase
 #using PDMats
 

@@ -2,8 +2,8 @@
 #@doc raw"""
 #    StochasticVolatilityVModel
 #Definition of the system matrices ``y, m, P, S`` for a stochastic volatility (SV) model.
-#2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controlling the shocks to the XXX and XXX respectively. Setting δ = 1 results
-# in a SV model without time-varying parameters.
+#2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controlling the shocks to the Σ and Ω respectively. Setting δ = 1 results
+# in a SV model without time-varying means.
 #"""
 
 abstract type SVModel end

@@ -2,39 +2,32 @@
 
 """
 
-function simulate(UnivariateModel, T = 1_000)
-    x = zeros(T)
-    m = zeros(T + 1)
-    m[1] = UnivariateModel.m
-    P = UnivariateModel.P
-    S = UnivariateModel.S
+function simulate!(model::UnivariateModel)
+    T = length(model.y)
+    m = model.m
+    P = model.P
+    S = model.S
     for t in 1:T
-        x[t] = m[t] + rand(Normal(0, S))
-        m[t + 1] = m[t] + rand(Normal(0, S * P))
+        model.y[t] = rand(Normal(m, S))
+        m = rand(Normal(m, S * P))
     end
-    return (x = x, m = m)
 end
 
-function simulate(MultivariateModel, T = 1_000)
-    x = zeros(T, p)
-    p = size(MultivariateModel.m)
-    m = zeros(T + 1, p)
-    m[1, :] = MultivariateModel.m
-    P = MultivariateModel.P
-    S = MultivariateModel.S
+function simulate!(model::MultivariateModel)
+    T, p = size(model.y)
+    m = model.m
+    P = model.P
+    S = model.S
     for t in 1:T
-        x[t, :] = m[t, :] + rand(MvNormal(0, S))
-        m[t + 1, :] = m[t, :] + rand(MvNormal(0, kron(S, P)))
+        model.y[t, :] = rand(MvNormal(m, S))
+        m = rand(MvNormal(m, S .* P))
     end
-    return (x = x, m = m)
 end
 
-u = UnivariateModel(0, 1, 1)
-s = simulate(u, 50)
-plot(s.x)
-plot!(s.m)
+u = UnivariateModel(zeros(100), 0.0, 4.0, 1.0)
+simulate!(u)
+plot(u.y)
 
-U = MultivariateModel(0, 1, 1)
-S = simulate(U, 50)
-plot(s.x)
-plot!(s.m)
+U = MultivariateModel(zeros(100, 3), [0.0, -1.0, -2.0], 3.0, [1.0 0.0 0.0; 0.0 2.0 0.0; 0.0 0.0 4.0])
+simulate!(U)
+plot(U.y)

@@ -21,6 +21,7 @@ function estimate(Model::UnivariateModel, β::Real, δ::Real)
     S = zeros(T + 1) ; S[1] = Model.S
 
     μ = zeros(T)
+    ϵ = zeros(T)
     Σ = zeros(T)
 
     for t = 1:T
@@ -30,13 +31,13 @@ function estimate(Model::UnivariateModel, β::Real, δ::Real)
         
         μ[t] = predictive_mean(m[t])
         Σ[t] = predictive_covariance(Q, S[t], β, k)
-        e    = predictive_error(y[t], μ[t])
+        ϵ[t] = predictive_error(y[t], μ[t])
 
-        m[t + 1] = update_m(m[t], K, e)
+        m[t + 1] = update_m(m[t], K, ϵ[t])
         P[t + 1] = update_P(R, K, Q)
-        S[t + 1] = update_S(S[t], Q, e, k)
+        S[t + 1] = update_S(S[t], Q, ϵ[t], k)
     end
-    return (μ = μ, Σ = Σ, m = m, P = P, S = S)
+    return (μ = μ, Σ = Σ, ϵ = ϵ, m = m, P = P, S = S)
 end
 
 function estimate(Model::MultivariateModel, β::Real, δ::Real)
@@ -53,6 +54,7 @@ function estimate(Model::MultivariateModel, β::Real, δ::Real)
     S = zeros(T + 1, p, p) ; S[1, :, :] = Model.S
 
     μ = zeros(T, p)
+    ϵ = zeros(T, p)
     Σ = zeros(T, p, p)
 
     for t = 1:T
@@ -62,26 +64,26 @@ function estimate(Model::MultivariateModel, β::Real, δ::Real)
 
         μ[t, :]    = predictive_mean(m[t, :])
         Σ[t, :, :] = predictive_covariance.(Q, S[t, :, :], β, k)
-        e          = predictive_error.(y[t, :], μ[t, :])
+        ϵ[t, :]    = predictive_error.(y[t, :], μ[t, :])
 
-        m[t + 1, :]    = update_m.(m[t, :], K, e)
+        m[t + 1, :]    = update_m.(m[t, :], K, ϵ[t, :])
         P[t + 1]       = update_P(R, K, Q)
-        S[t + 1, :, :] = update_S.(S[t, :, :], Q, e, k)
+        S[t + 1, :, :] = update_S.(S[t, :, :], Q, ϵ[t, :], k)
     end
-    return (μ = μ, Σ = Σ, m = m, P = P, S = S)
+    return (μ = μ, Σ = Σ, ϵ = ϵ, m = m, P = P, S = S)
 end
 
 x = cumsum(randn(100));
 m = UnivariateModel(x, 0.0, 1000.0, 1.0);
 f = estimate(m, 0.9, 0.9);
 
-plot(x, color = :blue)
-plot!(f.μ, color = :blue, linestyle = :dash)
+#plot(x, color = :blue)
+#plot!(f.μ, color = :blue, linestyle = :dash)
 #plot!(m.μ, color = :blue, linestyle = :dash)
 
 X = [x cumsum(randn(100))];
 M = MultivariateModel(X, [0., 0.], 1000.0, [1.0 0.0; 0.0 1.0]);
 F = estimate(M, 0.9, 0.9);
 
-plot(X, color = [:blue :red])
-plot!(F.μ, color = [:blue :red], linestyle = [:dash :dash])
+#plot(X, color = [:blue :red])
+#plot!(F.μ, color = [:blue :red], linestyle = [:dash :dash])
