@@ -1,5 +1,8 @@
-"""
 
+"""
+simulate!(model::UnivariateModel)
+
+Simulate a univariate stochastic volatility model given the priors in ``model` with ``model.y`` is updated in place.
 """
 
 function simulate!(model::UnivariateModel)
@@ -12,6 +15,12 @@ function simulate!(model::UnivariateModel)
         m = rand(Normal(m, S * P))
     end
 end
+
+"""
+simulate!(model::MultivariateModel)
+
+Simulate a multivariate stochastic volatility model given the priors in ``model` with ``model.y`` is updated in place.
+"""
 
 function simulate!(model::MultivariateModel)
     T, p = size(model.y)

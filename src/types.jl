@@ -1,12 +1,25 @@
 
-#@doc raw"""
-#    StochasticVolatilityVModel
-#Definition of the system matrices ``y, m, P, S`` for a stochastic volatility (SV) model.
-#2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controlling the shocks to the Σ and Ω respectively. Setting δ = 1 results
-# in a SV model without time-varying means.
-#"""
+"""
+    SVModel
+
+Abstract type for a state space model with stochastic volatility.
+"""
 
 abstract type SVModel end
+
+"""
+    UnivariateModel
+
+Definition of ``y, m, P, S`` for a univariate stochastic volatility (SV) model:
+
+```math
+\begin{gather*}
+    \begin{aligned}
+        y_{t} = \phi_{t} + \sigma_{t} \times \epsilon where \epsilon_{t} \tilde N(0, 1)
+    \end{aligned}
+\end{gather*}
+```
+"""
 
 mutable struct UnivariateModel{T<:AbstractFloat} <: SVModel
     y::AbstractVector{T}
@@ -19,6 +32,20 @@ mutable struct UnivariateModel{T<:AbstractFloat} <: SVModel
         return new{T}(y, m, P, S)
     end
 end
+
+"""
+    MultivariateModel
+
+Definition of ``y, m, P, S`` for a multivariate stochastic volatility (SV) model:
+
+```math
+\begin{gather*}
+    \begin{aligned}
+        y_{t} = \phi_{t} + \Sigma_{t}^{frac{1}{2}} \times \epsilon_{t} where \epsilon_{t} \tilde N_{p}(0, I_{p})
+    \end{aligned}
+\end{gather*}
+```
+"""
 
 mutable struct MultivariateModel{T<:AbstractFloat} <: SVModel
     y::AbstractMatrix{T}

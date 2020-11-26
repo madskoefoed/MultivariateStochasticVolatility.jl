@@ -1,24 +1,25 @@
 
-#function check_inputs(β::Real, δ::Real)
-#    if β >= 1 || β <= 2/3
-#        throw(ArgumentError("β must be in the range ]2/3, 1[, is currently $β"))
-#    elseif δ > 1 || δ <= 0
-#        throw(ArgumentError("δ must be in the range ]0, 1], is currently $δ"))
-#    end
-#end
+"""
+    estimate(model::UnivariateModel; β::Real, δ::Real)
 
-function estimate(Model::UnivariateModel, β::Real, δ::Real)
+Estimate a univariate stochastic volatility model with time-varying
+mean and volatility.
 
-    y = Model.y
+The hyperparameters 2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controlling the shocks to the Σ and Ω respectively.
+"""
+
+function estimate(model::UnivariateModel; β::Real, δ::Real)
+
+    y = model.y
 
     # Constants
     T = size(y, 1)
     n = get_n(β)
     k = get_k(β, 1)
     
-    m = zeros(T + 1) ; m[1] = Model.m
-    P = zeros(T + 1) ; P[1] = Model.P
-    S = zeros(T + 1) ; S[1] = Model.S
+    m = zeros(T + 1) ; m[1] = model.m
+    P = zeros(T + 1) ; P[1] = model.P
+    S = zeros(T + 1) ; S[1] = model.S
 
     μ = zeros(T)
     ϵ = zeros(T)
@@ -37,21 +38,30 @@ function estimate(Model::UnivariateModel, β::Real, δ::Real)
         P[t + 1] = update_P(R, K, Q)
         S[t + 1] = update_S(S[t], Q, ϵ[t], k)
     end
-    return (μ = μ, Σ = Σ, ϵ = ϵ, m = m, P = P, S = S)
+    return (μ = μ, Σ = Σ, ϵ = ϵ, ν = get_df(β, n), m = m, P = P, S = S)
 end
 
-function estimate(Model::MultivariateModel, β::Real, δ::Real)
+"""
+estimate(model::MultivariateModel; β::Real, δ::Real)
 
-    y = Model.y
+Estimate a multivariate stochastic volatility model with time-varying
+mean and volatility.
+
+The hyperparameters 2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controlling the shocks to the Σ and Ω respectively.
+"""
+
+function estimate(model::MultivariateModel; β::Real, δ::Real)
+
+    y = model.y
 
     # Constants
     T, p = size(y)
     n = get_n(β)
     k = get_k(β, p)
     
-    m = zeros(T + 1, p)    ; m[1, :]    = Model.m
-    P = zeros(T + 1)       ; P[1]       = Model.P
-    S = zeros(T + 1, p, p) ; S[1, :, :] = Model.S
+    m = zeros(T + 1, p)    ; m[1, :]    = model.m
+    P = zeros(T + 1)       ; P[1]       = model.P
+    S = zeros(T + 1, p, p) ; S[1, :, :] = model.S
 
     μ = zeros(T, p)
     ϵ = zeros(T, p)
@@ -70,7 +80,7 @@ function estimate(Model::MultivariateModel, β::Real, δ::Real)
         P[t + 1]       = update_P(R, K, Q)
         S[t + 1, :, :] = update_S.(S[t, :, :], Q, ϵ[t, :], k)
     end
-    return (μ = μ, Σ = Σ, ϵ = ϵ, m = m, P = P, S = S)
+    return (μ = μ, Σ = Σ, ϵ = ϵ, ν = get_df(β, n), m = m, P = P, S = S)
 end
 
 x = cumsum(randn(100));
