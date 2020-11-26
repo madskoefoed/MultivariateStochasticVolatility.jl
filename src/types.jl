@@ -25,7 +25,7 @@ mutable struct MultivariateModel{T<:AbstractFloat} <: SVModel
     m::AbstractVector{T}
     P::T
     S::AbstractMatrix{T}
-    function MultivariateModel(y::AbstractMatrix{T}, m::AbstractMatrix{T}, P::T, S::AbstractMatrix{T}) where {T<:AbstractFloat}
+    function MultivariateModel(y::AbstractMatrix{T}, m::AbstractVector{T}, P::T, S::AbstractMatrix{T}) where {T<:AbstractFloat}
         !(size(y, 2) == length(m) == size(S, 1) == size(S, 2)) && throw(DimensionMismatch("y is $(size(y)), m is $(length(m)), and S is $(size(S))."))
         P > 0 || throw(ArgumentError("P must be strictly positive."))
         all(diag(S) .> 0) || throw(ArgumentError("The diagonal elements of S must be strictly positive."))
