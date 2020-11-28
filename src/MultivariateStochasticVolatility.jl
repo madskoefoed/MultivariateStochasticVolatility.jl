@@ -6,10 +6,10 @@ using Distributions: Normal, MvNormal
 using StatsBase
 
 # Include scripts
-include("./src/util.jl")
-include("./src/types.jl")
-include("./src/estimate.jl")
-include("./src/simulate.jl")
+include("./util.jl")
+include("./types.jl")
+include("./estimate.jl")
+include("./simulate.jl")
 
 # Exported types and structs
 export SVModel, UnivariateModel, MultivariateModel

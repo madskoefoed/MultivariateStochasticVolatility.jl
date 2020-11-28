@@ -82,18 +82,3 @@ function estimate(model::MultivariateModel; β::Real, δ::Real)
     end
     return (μ = μ, Σ = Σ, ϵ = ϵ, ν = get_df(β, n), m = m, P = P, S = S)
 end
-
-x = cumsum(randn(100));
-m = UnivariateModel(x, 0.0, 1000.0, 1.0);
-f = estimate(m, 0.9, 0.9);
-
-#plot(x, color = :blue)
-#plot!(f.μ, color = :blue, linestyle = :dash)
-#plot!(m.μ, color = :blue, linestyle = :dash)
-
-X = [x cumsum(randn(100))];
-M = MultivariateModel(X, [0., 0.], 1000.0, [1.0 0.0; 0.0 1.0]);
-F = estimate(M, 0.9, 0.9);
-
-#plot(X, color = [:blue :red])
-#plot!(F.μ, color = [:blue :red], linestyle = [:dash :dash])

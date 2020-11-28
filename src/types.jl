@@ -7,19 +7,19 @@ Abstract type for a state space model with stochastic volatility.
 
 abstract type SVModel end
 
-"""
-    UnivariateModel
+#"""
+#    UnivariateModel
 
-Definition of ``y, m, P, S`` for a univariate stochastic volatility (SV) model:
+#Definition of ``y, m, P, S`` for a univariate stochastic volatility (SV) model:
 
-```math
-\begin{gather*}
-    \begin{aligned}
-        y_{t} = \phi_{t} + \sigma_{t} \times \epsilon where \epsilon_{t} \tilde N(0, 1)
-    \end{aligned}
-\end{gather*}
-```
-"""
+#```math
+#\begin{gather*}
+#    \begin{aligned}
+#        y_{t} = \phi_{t} + \sigma_{t} \times \epsilon where \epsilon_{t} \tilde N(0, 1)
+#    \end{aligned}
+#\end{gather*}
+#```
+#"""
 
 mutable struct UnivariateModel{T<:AbstractFloat} <: SVModel
     y::AbstractVector{T}
@@ -33,19 +33,19 @@ mutable struct UnivariateModel{T<:AbstractFloat} <: SVModel
     end
 end
 
-"""
-    MultivariateModel
+#"""
+#    MultivariateModel
 
-Definition of ``y, m, P, S`` for a multivariate stochastic volatility (SV) model:
+#Definition of ``y, m, P, S`` for a multivariate stochastic volatility (SV) model:
 
-```math
-\begin{gather*}
-    \begin{aligned}
-        y_{t} = \phi_{t} + \Sigma_{t}^{frac{1}{2}} \times \epsilon_{t} where \epsilon_{t} \tilde N_{p}(0, I_{p})
-    \end{aligned}
-\end{gather*}
-```
-"""
+#```math
+#\begin{gather*}
+#    \begin{aligned}
+#        y_{t} = \phi_{t} + \Sigma_{t}^{frac{1}{2}} \times \epsilon_{t} where \epsilon_{t} \tilde N_{p}(0, I_{p})
+#    \end{aligned}
+#\end{gather*}
+#```
+#"""
 
 mutable struct MultivariateModel{T<:AbstractFloat} <: SVModel
     y::AbstractMatrix{T}
