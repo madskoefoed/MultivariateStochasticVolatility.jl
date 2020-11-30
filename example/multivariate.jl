@@ -9,7 +9,7 @@ using Plots
 y = zeros(500, 3)
 
 # Struct containing y and priors
-s = MultivariateModel(y, [0.0, -1.0, -2.0], 3.0, [1.0 0.0 0.0; 0.0 2.0 0.0; 0.0 0.0 4.0])
+s = MultivariateModel(y, [0.0, -1.0, -2.0], 1.0, [1.0 0.0 0.0; 0.0 2.0 0.0; 0.0 0.0 4.0])
 
 # Simulate
 simulate!(s)

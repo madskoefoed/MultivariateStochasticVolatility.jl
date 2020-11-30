@@ -2,14 +2,14 @@
 ### Univariate local level model ###
 ####################################
 
-# Packages
+# Load packages
 using Plots
 
 # Time series storage
 y = zeros(500)
 
 # Struct containing y and priors
-s = UnivariateModel(y, 0.0, 4.0, 1.0)
+s = UnivariateModel(y, 0.0, 1.0, 1.0)
 
 # Simulate
 simulate!(s)
