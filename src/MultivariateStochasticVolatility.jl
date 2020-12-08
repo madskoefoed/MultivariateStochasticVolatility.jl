@@ -3,11 +3,13 @@ module MultivariateStochasticVolatility
 # Import
 using LinearAlgebra: diag, kron
 using Distributions: Normal, MvNormal
-using StatsBase
+#using StatsBase
 
 # Include scripts
-include("./estimate.jl")
-include("./simulate.jl")
+include("./src/types.jl")
+include("./src/utils.jl")
+include("./src/estimate.jl")
+include("./src/simulate.jl")
 
 # Exported functions
 export estimate, simulate!

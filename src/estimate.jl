@@ -2,39 +2,71 @@
 """
 estimate(x; β::Real, δ::Real)
 
-Estimate a multivariate stochastic volatility model with time-varying
-mean and volatility.
+Estimate a stochastic volatility model with time-varying
+mean and volatility. Volatility is modelled as a random walk.
 
 The hyperparameters 2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controlling the shocks to the Σ and Ω respectively.
 """
 
-function estimate(x::AbstractMatrix{<:Real}, m::AbstractVector{<:Real}, P::W, S::AbstractMatrix{<:Real}; ν::Real, δ::Real)
+function estimate(TVVAR::UnivariateModel)
 
-    # Checks
-    !(length(m) == size(S, 1) == size(S, 2)) && throw(DimensionMismatch("x is $(size(x)), m is $(length(m)), and S is $(size(S))."))
-    ν > 2 || throw(ArgumentError("ν must be > 2."))
-    P >= 0 || throw(ArgumentError("P must be non-negative."))
-    all(diag(S) .> 0) || throw(ArgumentError("The diagonal elements of S must be strictly positive."))
-    #!issymmetric(S) || throw(ArgumentError("S must be symmetric."))
+    x = TVVAR.x
+    β = TVVAR.hyperparameters.β
+    δ = TVVAR.hyperparameters.δ
+
+    # Constants
+    T = length(x)
+    m = zeros(T + 1)
+    P = zeros(T + 1)
+    S = zeros(T + 1)
+
+    m[1] = TVVAR.m
+    P[1] = TVVAR.P
+    S[1] = TVVAR.S
+
+    μ = zeros(T)
+    ϵ = zeros(T)
+    Σ = zeros(T)
+
+    for t = 1:T
+        R, Q, K = update_state(P[t], δ)
+
+        μ[t] = m[t]
+        Σ[t] = Q*(1 - β)/(3 - 2/β)*S[t]
+        ϵ[t] = x[t] - μ[t]
+
+        m[t + 1] = m[t] + K*ϵ[t]
+        P[t + 1] = R - K^2*Q
+        S[t + 1] = S[t]*β + ϵ[t]^2/Q
+    end
+    return (μ = μ, Σ = Σ, m = m, P = P, S = S, Ω = S .* P)
+end
+
+function estimate(TVVAR::MultivariateModel)
+
+    x = TVVAR.x
+    β = TVVAR.hyperparameters.β
+    δ = TVVAR.hyperparameters.δ
+    ν = TVVAR.hyperparameters.ν
 
     # Constants
     T, p = size(x)
-    β = ν/(1 + ν)
     k = (β - p*β + p)/(2β - p*β + p - 1)
 
-    s = copy(S)
-    m = repeat(m', T + 1, 1)
-    P = fill(P, T + 1)
-    S = zeros(T + 1, p, p) ; S[1, :, :] = s
+    m = zeros(T + 1, p)
+    P = zeros(T + 1)
+    S = zeros(T + 1, p, p)
+
+    m[1, :]    = TVVAR.m
+    P[1]       = TVVAR.P
+    S[1, :, :] = TVVAR.S
 
     μ = zeros(T, p)
     ϵ = zeros(T, p)
     Σ = zeros(T, p, p)
 
     for t = 1:T
-        R = P[t]/δ
-        Q = R + 1.0
-        K = R/Q
+        R, Q, K = update_state(P[t], δ)
 
         μ[t, :]    = m[t, :]
         Σ[t, :, :] = Q*(1 - β)/(3β*k - 2k)*S[t, :, :]
@@ -44,16 +76,13 @@ function estimate(x::AbstractMatrix{<:Real}, m::AbstractVector{<:Real}, P::W, S:
         P[t + 1]       = R - K^2*Q
         S[t + 1, :, :] = S[t, :, :]/k + ϵ[t, :]*ϵ[t, :]'/Q
     end
-    return (μ = μ, Σ = Σ, ν = ν, m = m, P = P, S = S)
+    return (μ = μ, Σ = Σ, m = m, P = P, S = S, Ω = S .* P)
 end
-estimate(x::AbstractVector{<:Real}, m::Real, P::Real, S::Real; ν::Real, δ::Real) = estimate(repeat(x, 1, 1), [m], P, Matrix([S]'), ν = ν, δ = δ)
-estimate(x::AbstractMatrix{<:Real}, m::AbstractVector{<:Real}, P::Real, S::AbstractVector{<:Real}; ν::Real, δ::Real) = estimate(x, m, P, Diagonal(S), ν = ν, δ = δ)
-estimate(x::AbstractMatrix{<:Real}, S::AbstractMatrix{<:Real}; ν::Real, δ::Real) = estimate(x, zeros(size(x, 2)), 0.0, S; ν = ν, δ = δ)
-estimate(x::AbstractMatrix{<:Real}, P::Real, S::AbstractMatrix{<:Real}; ν::Real, δ::Real) = estimate(x, zeros(size(x, 2)), P, S; ν = ν, δ = δ)
-estimate(x::AbstractMatrix{<:Real}, m::AbstractVector{<:Real}, S::AbstractMatrix{<:Real}; ν::Real, δ::Real) = estimate(x, m, 0.0, S; ν = ν, δ = δ)
 
-T = 200
+T = 2000
 x = randn(T) * 2;
-M = estimate(x, 0.0, 0.00001, 100.0; ν = 10., δ = 0.98);
-plot!(sqrt.(M.Σ) * 1.96, color = :yellow)
-plot!(-sqrt.(M.Σ) * 1.96, color = :yellow)
+h = Hyperparameters(0.98, 0.98)
+m = UnivariateModel(x, 0, 1000, 1, h);
+e = estimate(m);
+plot!(sqrt.(e.Σ) * 1.96, color = :yellow)
+plot!(-sqrt.(e.Σ) * 1.96, color = :yellow)
