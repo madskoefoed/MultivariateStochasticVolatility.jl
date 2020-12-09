@@ -1,33 +1,37 @@
 
 """
-simulate!(model::MultivariateModel)
+simulate!(ss::StateSpace)
 
 Simulate a stochastic volatility model given m, P, and S. If P > 0, the mean vector is simulated
 as a random walk while P = 0 implies a standard stochastic volatility model without time-varying mean(s).
 """
 
-function simulate(TVVAR::UnivariateModel)
-    x = TVVAR.x
-    m = TVVAR.m
-    P = TVVAR.P
-    S = TVVAR.S
-    for t in 1:lenth(x)
-            TVVAR.x[t] = rand(Normal(TVVAR.m, TVVAR.S))
-            TVVAR.m = rand(Normal(m[1], S[1] .* P))
+function simulate!(ssm::StateSpace)
+    y = ssm.y
+    x = ssm.x
+    # Check that y and x agree
+    !(size(y, 1) == size(x, 1)) && throw(DimensionMismatch("y is $(size(y)) and x is $(size(x))."))
+
+    # Constants
+    T, J = size(y)
+    D    = size(x, 2)
+    Δ    = Matrix(I, D, D)/sqrt(hyperparameters.δ)
+    m = zeros(T + 1, D, J)
+    P = zeros(T + 1, D, D)
+    S = zeros(T + 1, J, J)
+
+    m[1, :, :] = priors.m
+    P[1, :, :] = priors.P
+    S[1, :, :] = priors.S
+
+    for t = 1:T
+        y[t, :]        = rand(MvNormal(m[t, :, :]' * x[t, :], Σ))
+        m[t + 1, :, :] = rand(MvNormal(m[t, :, :]), posterior_covariance(S[t, :, :], P[t, :, :], Δ))
+        P[t + 1, :, :] = P[t, :, :]
+        S[t + 1, :, :] = S[t, :, :]
     end
-    return y
+    ssm.y = y
+    return (y = y, m = m, P = P, S = S)
 end
 
-function simulate!(TVVAR::MultivariateModel)
-    T, p = size(TVVAR.x)
-    for t in 1:T
-        if p == 1
-            y[t, :] = rand(Normal(m[1], S[1]))
-            m[1] = rand(Normal(m[1], S[1] .* P))
-        else
-            y[t, :] = rand(MvNormal(m, S))
-            m = rand(MvNormal(m, S .* P))
-        end
-    end
-    return y
-end
+simulate!(zeros(100,1), ones(100,1), p, h)

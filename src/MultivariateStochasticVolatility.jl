@@ -1,13 +1,18 @@
 module MultivariateStochasticVolatility
 
 # Import
-using LinearAlgebra: diag, kron
-using Distributions: Normal, MvNormal
+using LinearAlgebra#: diag, kron
+using Distributions#: Normal, MvNormal
 #using StatsBase
+
+# Aliases
+#const A1R = Vector{<:Real}
+#const A2R = Matrix{<:Real}
+#const A3R = Array{<:Real, 3}
 
 # Include scripts
 include("./src/types.jl")
-include("./src/utils.jl")
+include("./src/predict.jl")
 include("./src/estimate.jl")
 include("./src/simulate.jl")
 
