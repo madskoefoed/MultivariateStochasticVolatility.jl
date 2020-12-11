@@ -4,12 +4,19 @@
 
 # Packages
 using Plots
+import Distributions
 
 # Time series storage
 y = zeros(500, 3)
 
+# Hyperparameters
+h = Hyperparameters(0.9, 0.9)
+
+# Priors
+p = Priors(zeros(1, 3), repeat([100.], 1, 1), Matrix(LinearAlgebra.I, 3, 3))
+
 # Struct containing y and priors
-s = MultivariateModel(y, [0.0, -1.0, -2.0], 1.0, [1.0 0.0 0.0; 0.0 2.0 0.0; 0.0 0.0 4.0])
+s = LocalLevel(y, p, h)
 
 # Simulate
 simulate!(s)

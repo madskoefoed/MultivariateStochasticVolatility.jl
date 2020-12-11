@@ -1,8 +1,8 @@
 module MultivariateStochasticVolatility
 
 # Import
-using LinearAlgebra#: diag, kron
-using Distributions#: Normal, MvNormal
+import LinearAlgebra#: diag, kron, I
+import Distributions#: Normal, MvNormal
 #using StatsBase
 
 # Aliases
@@ -12,7 +12,7 @@ using Distributions#: Normal, MvNormal
 
 # Include scripts
 include("./src/types.jl")
-include("./src/predict.jl")
+include("./src/utils.jl")
 include("./src/estimate.jl")
 include("./src/simulate.jl")
 

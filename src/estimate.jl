@@ -21,7 +21,7 @@ function estimate(ssm::StateSpace)
     T, J = size(y)
     D    = size(x, 2)
     k = (β - J*β + J)/(2β - J*β + J - 1)
-    Δ = Matrix(I, D, D)/sqrt(δ)
+    Δ = Matrix(LinearAlgebra.I, D, D)/sqrt(δ)
 
     m = zeros(T + 1, D, J)
     P = zeros(T + 1, D, D)
@@ -34,7 +34,7 @@ function estimate(ssm::StateSpace)
     m[1, :, :] = ssm.priors.m
     P[1, :, :] = ssm.priors.P
     S[1, :, :] = ssm.priors.S
-    Φ[1, :, :] = kron(ssm.priors.S, ssm.priors.P)
+    Φ[1, :, :] = posterior_covariance(ssm.priors.S, ssm.priors.P)
 
     for t = 1:T
         R = Δ * P[t, :, :] * Δ
@@ -52,18 +52,3 @@ function estimate(ssm::StateSpace)
     end
     return (μ = μ, Σ = Σ, m = m, P = P, S = S, Φ = Φ, k, Δ)
 end
-
-
-T = 250
-K = 3
-J = 2
-
-x = rand(T, K);
-y = rand(T, J);
-m = rand(K, J);
-P = Matrix(3I, K, K);
-S = Matrix(10I, J, J);
-h = Hyperparameters(0.95, 0.98);
-p = Priors(m, P, S);
-s = StateSpace(y, x, p, h);
-e = estimate(s)

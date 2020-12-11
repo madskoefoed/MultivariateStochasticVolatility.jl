@@ -23,12 +23,12 @@ mutable struct Hyperparameters
 end
 
 # Constructors for Hyperparameters
-Hyperparameters() = Hyperparameters(0.99, 0.99)
+Hyperparameters() = Hyperparameters(0.999, 0.999)
 
 mutable struct Priors
-    m::Matrix{<:Real}
-    P::Matrix{<:Real}
-    S::Matrix{<:Real}
+    m::Matrix{<:Real} # K x J
+    P::Matrix{<:Real} # K x K
+    S::Matrix{<:Real} # J x J
     function Priors(m, P, S)
         mrow, mcol = size(m)
         Prow, Pcol = size(P)
@@ -41,7 +41,14 @@ mutable struct Priors
 end
 
 # Constructors for Priors
-#Priors(m::Real, P::Real, S::Real) = Priors(repeat([m], 1, 1), repeat([P], 1, 1), repeat([S], 1, 1))
+#Priors(m::Real, P::Real, S::Real) = Priors(num2mat(m), num2mat(P), num2mat(S))
+#Priors(m::Real, P::Matrix{<:Real}, S::Matrix{<:Real}) = Priors(num2mat(m), P, S)
+#Priors(m::Real, P::Matrix{<:Real}, S::Matrix{<:Real}) = Priors(num2mat(m), P, S)
+#Priors(m::Real, P::Matrix{<:Real}, S::Matrix{<:Real}) = Priors(num2mat(m), P, S)
+
+#Priors(m::Vector{<:Real}, P::Matrix{<:Real}, S::Matrix{<:Real}) = Priors(vec2mat(m), P, S)
+#Priors(m::Matrix{<:Real}, P::Vector{<:Real}, S::Matrix{<:Real}) = Priors(m, vec2mat(P), S)
+#Priors(m::Matrix{<:Real}, P::Matrix{<:Real}, S::Vector{<:Real}) = Priors(m, P, repvec2mateat(S))
 
 mutable struct StateSpace <: SSM
     y::Matrix{<:Real} # T x J
@@ -61,3 +68,9 @@ mutable struct StateSpace <: SSM
         return new(y, x, priors, hyperparameters)
     end
 end
+
+LocalLevel(y::Vector{<:Real}, priors::Priors, hyperparameters::Hyperparameters) = StateSpace(vec2mat(y), ones(size(y, 1), 1), priors, hyperparameters)
+LocalLevel(y::Matrix{<:Real}, priors::Priors, hyperparameters::Hyperparameters) = StateSpace(y, ones(size(y, 1), 1), priors, hyperparameters)
+
+LocalLevelTrend(y::Vector{<:Real}, priors::Priors, hyperparameters::Hyperparameters) = StateSpace(vec2mat(y), [ones(size(y, 1)) collect(1:size(y, 1))], priors, hyperparameters)
+LocalLevelTrend(y::Matrix{<:Real}, priors::Priors, hyperparameters::Hyperparameters) = StateSpace(y, [ones(size(y, 1)) collect(1:size(y, 1))], priors, hyperparameters)

@@ -9,24 +9,21 @@ as a random walk while P = 0 implies a standard stochastic volatility model with
 function simulate!(ssm::StateSpace)
     y = ssm.y
     x = ssm.x
-    # Check that y and x agree
-    !(size(y, 1) == size(x, 1)) && throw(DimensionMismatch("y is $(size(y)) and x is $(size(x))."))
-
     # Constants
     T, J = size(y)
     D    = size(x, 2)
-    Δ    = Matrix(I, D, D)/sqrt(hyperparameters.δ)
+    # Storage
     m = zeros(T + 1, D, J)
     P = zeros(T + 1, D, D)
     S = zeros(T + 1, J, J)
 
-    m[1, :, :] = priors.m
-    P[1, :, :] = priors.P
-    S[1, :, :] = priors.S
+    m[1, :, :] = ssm.priors.m
+    P[1, :, :] = ssm.priors.P
+    S[1, :, :] = ssm.priors.S
 
     for t = 1:T
-        y[t, :]        = rand(MvNormal(m[t, :, :]' * x[t, :], Σ))
-        m[t + 1, :, :] = rand(MvNormal(m[t, :, :]), posterior_covariance(S[t, :, :], P[t, :, :], Δ))
+        y[t, :]        = rand(Distributions.MvNormal(m[t, :, :]' * x[t, :], S[t, :, :]))
+        m[t + 1, :, :] = rand(Distributions.MvNormal(m[t, :, :]), posterior_covariance(S[t, :, :], P[t, :, :]))
         P[t + 1, :, :] = P[t, :, :]
         S[t + 1, :, :] = S[t, :, :]
     end
@@ -34,4 +31,4 @@ function simulate!(ssm::StateSpace)
     return (y = y, m = m, P = P, S = S)
 end
 
-simulate!(zeros(100,1), ones(100,1), p, h)
+#simulate!(zeros(100,1), ones(100,1), p, h)
