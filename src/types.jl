@@ -8,69 +8,75 @@ as a random walk while P = 0 implies a standard stochastic volatility model with
 
 abstract type SSM end
 
-mutable struct Hyperparameters
-    β::Real
-    δ::Real
-    ν::Real
-    n::Real
-    function Hyperparameters(β, δ)
-        (δ  > 0 && δ <= 1) || throw(ArgumentError("0 < δ ≤ 1 is not fulfilled."))
-        (β > 2/3 && β < 1) || throw(ArgumentError("$(2//3) < β < 1 is not fulfilled."))
-        ν = β/(1 - β)
-        n = 1/(1 - β)
-        return new(β, δ, ν, n)
-    end
-end
+mutable struct StateSpace <: SSM
+    y::Matrix{<:Real} # T x J (dependent variables)
+    x::Matrix{<:Real} # T x K (independent variables)
 
-# Constructors for Hyperparameters
-Hyperparameters() = Hyperparameters(0.999, 0.999)
+    m::Matrix{<:Real} # K x J (parameter means)
+    P::Matrix{<:Real} # K x K (parameter covariance)
+    S::Matrix{<:Real} # J x J ()
 
-mutable struct Priors
-    m::Matrix{<:Real} # K x J
-    P::Matrix{<:Real} # K x K
-    S::Matrix{<:Real} # J x J
-    function Priors(m, P, S)
+    β::Real # Discount factor for covariance matrix
+    δ::Real # Discount factor for parameters
+    ν::Real # Degrees of freedom of student-t distribution (calculated from β)
+    n::Real # First shape parameter (input to)
+    k::Real # Ensures that Σ is a random walk
+
+    function StateSpace(y, x, m, P, S, β, δ)
+        yrow, ycol = size(y)
+        xrow, xcol = size(x)
         mrow, mcol = size(m)
         Prow, Pcol = size(P)
         Srow, Scol = size(S)
 
-        !(size(m, 2) == size(S, 1) == size(S, 2)) && throw(DimensionMismatch("m is $(size(m)) and S is $(size(S))."))
-        !(size(m, 1) == size(P, 1) == size(P, 2)) && throw(DimensionMismatch("m is $(size(m)) and P is $(size(P))."))
-        return new(m, P, S)
-    end
-end
-
-# Constructors for Priors
-#Priors(m::Real, P::Real, S::Real) = Priors(num2mat(m), num2mat(P), num2mat(S))
-#Priors(m::Real, P::Matrix{<:Real}, S::Matrix{<:Real}) = Priors(num2mat(m), P, S)
-#Priors(m::Real, P::Matrix{<:Real}, S::Matrix{<:Real}) = Priors(num2mat(m), P, S)
-#Priors(m::Real, P::Matrix{<:Real}, S::Matrix{<:Real}) = Priors(num2mat(m), P, S)
-
-#Priors(m::Vector{<:Real}, P::Matrix{<:Real}, S::Matrix{<:Real}) = Priors(vec2mat(m), P, S)
-#Priors(m::Matrix{<:Real}, P::Vector{<:Real}, S::Matrix{<:Real}) = Priors(m, vec2mat(P), S)
-#Priors(m::Matrix{<:Real}, P::Matrix{<:Real}, S::Vector{<:Real}) = Priors(m, P, repvec2mateat(S))
-
-mutable struct StateSpace <: SSM
-    y::Matrix{<:Real} # T x J
-    x::Matrix{<:Real} # T x K
-    priors::Priors
-    hyperparameters::Hyperparameters
-    function StateSpace(y, x, priors, hyperparameters)
-        yrow, ycol = size(y)
-        xrow, xcol = size(x)
-        mrow, mcol = size(priors.m)
-        Prow, Pcol = size(priors.P)
-        Srow, Scol = size(priors.S)
-
         !(yrow == xrow) && throw(DimensionMismatch("y is $(size(y)) and x is $(size(x))."))
         !(ycol == mcol == Srow == Scol) && throw(DimensionMismatch("y is $(size(y)), m is $(size(m)) and S is $(size(S))."))
         !(xcol == mrow == Prow == Pcol) && throw(DimensionMismatch("x is $(size(x)), m is $(size(m)) and P is $(size(P))."))
-        return new(y, x, priors, hyperparameters)
+
+        all(LinearAlgebra.diag(P) .> 0) || throw(ArgumentError("All diagonal elements of P must be strictly positive."))
+        all(LinearAlgebra.diag(S) .> 0) || throw(ArgumentError("All diagonal elements of S must be strictly positive."))
+
+        (δ  > 0 && δ <= 1) || throw(ArgumentError("0 < δ ≤ 1 is not fulfilled."))
+        (β > 2/3 && β < 1) || throw(ArgumentError("$(2//3) < β < 1 is not fulfilled."))
+        ν = β/(1 - β)
+        n = 1/(1 - β)
+        k = (β - ycol*β + ycol)/(2β - ycol*β + ycol - 1)
+        return new(y, x, m, P, S, β, δ, ν, n, k)
     end
 end
 
-LocalLevel(y::Vector{<:Real}, priors::Priors, hyperparameters::Hyperparameters) = StateSpace(vec2mat(y), ones(size(y, 1), 1), priors, hyperparameters)
-LocalLevel(y::Matrix{<:Real}, priors::Priors, hyperparameters::Hyperparameters) = StateSpace(y, ones(size(y, 1), 1), priors, hyperparameters)
+# Constructor for state space model with default settings
+function StateSpace(y::Matrix{<:Real}, x::Matrix{<:Real}, β::Real, δ::Real)
+    J = size(y, 2)
+    K = size(x, 2)
+    StateSpace(y, x, zeros(K, J), Matrix(1000*LinearAlgebra.I, K, K), Matrix(LinearAlgebra.I, J, J), β, δ)
+end
 
-LocalLevelTrend(y::Vector{<:Real}, priors::Priors, hyperparameters::Hyperparameters) = StateSpace(vec2mat(y), [ones(size(y, 1)) collect(1:size(y, 1))], priors, hyperparameters)
-LocalLevelTrend(y::Matrix{<:Real}, priors::Priors, hyperparameters::Hyperparameters) = StateSpace(y, [ones(size(y, 1)) collect(1:size(y, 1))], priors, hyperparameters)
+# Constructors for local level
+function LocalLevel(y::Matrix{<:Real}, m::Matrix{<:Real}, P::Matrix{<:Real}, S::Matrix{<:Real}, β::Real, δ::Real)
+    x = ones(size(y, 1), 1)
+    StateSpace(y, x, m, P, S, β, δ)
+end
+function LocalLevel(y::Matrix{<:Real}, β::Real, δ::Real)
+    J = size(y, 2)
+    K = size(x, 2)
+    x = ones(size(y, 1), 1)
+    StateSpace(y, x, zeros(K, J), Matrix(1000*LinearAlgebra.I, K, K), Matrix(LinearAlgebra.I, J, J), β, δ)
+end
+
+function LocalLevel(y::Matrix{<:Real}, m::Matrix{<:Real}, P::Matrix{<:Real}, S::Matrix{<:Real}, β::Real, δ::Real)
+    x = ones(size(y, 1), 1)
+    StateSpace(y, x, m, P, S, β, δ)
+end
+
+# Constructors for local level trend
+function LocalLevelTrend(y::Matrix{<:Real}, m::Matrix{<:Real}, P::Matrix{<:Real}, S::Matrix{<:Real}, β::Real, δ::Real)
+    x = [ones(size(y, 1)) collect(1:size(y, 1))]
+    StateSpace(y, x, m, P, S, β, δ)
+end
+function LocalLevelTrend(y::Matrix{<:Real}, β::Real, δ::Real)
+    J = size(y, 2)
+    K = size(x, 2)
+    x = [ones(size(y, 1)) collect(1:size(y, 1))]
+    StateSpace(y, x, zeros(K, J), Matrix(1000*LinearAlgebra.I, K, K), Matrix(LinearAlgebra.I, J, J), β, δ)
+end

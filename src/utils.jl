@@ -1,5 +1,5 @@
-prior_covariance(S, P, Δ) = LinearAlgebra.kron(S * (Δ * P * Δ))
-posterior_covariance(S, P) = LinearAlgebra.kron(S * P)
+prior_covariance(S, P, Δ) = LinearAlgebra.kron(S, (Δ * P * Δ))
+posterior_covariance(S, P) = LinearAlgebra.kron(S, P)
 
 #draw_m()
 #draw_P()

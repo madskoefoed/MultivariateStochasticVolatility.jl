@@ -9,14 +9,8 @@ import Distributions
 # Time series storage
 y = zeros(500, 3)
 
-# Hyperparameters
-h = Hyperparameters(0.9, 0.9)
-
-# Priors
-p = Priors(zeros(1, 3), repeat([100.], 1, 1), Matrix(LinearAlgebra.I, 3, 3))
-
 # Struct containing y and priors
-s = LocalLevel(y, p, h)
+s = LocalLevel(y, zeros(1, 3), repeat([100.], 1, 1), Matrix(LinearAlgebra.I, 3, 3), 0.95, 0.9)
 
 # Simulate
 simulate!(s)

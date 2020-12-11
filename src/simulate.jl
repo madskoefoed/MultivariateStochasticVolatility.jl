@@ -17,9 +17,9 @@ function simulate!(ssm::StateSpace)
     P = zeros(T + 1, D, D)
     S = zeros(T + 1, J, J)
 
-    m[1, :, :] = ssm.priors.m
-    P[1, :, :] = ssm.priors.P
-    S[1, :, :] = ssm.priors.S
+    m[1, :, :] = ssm.m
+    P[1, :, :] = ssm.P
+    S[1, :, :] = ssm.S
 
     for t = 1:T
         y[t, :]        = rand(Distributions.MvNormal(m[t, :, :]' * x[t, :], S[t, :, :]))

@@ -13,14 +13,15 @@ function estimate(ssm::StateSpace)
     y = ssm.y
     x = ssm.x
 
-    β = ssm.hyperparameters.β
-    δ = ssm.hyperparameters.δ
-    ν = ssm.hyperparameters.ν
+    β = ssm.β
+    δ = ssm.δ
+    ν = ssm.ν
+    k = ssm.k
+    n = ssm.n
 
     # Constants
     T, J = size(y)
     D    = size(x, 2)
-    k = (β - J*β + J)/(2β - J*β + J - 1)
     Δ = Matrix(LinearAlgebra.I, D, D)/sqrt(δ)
 
     m = zeros(T + 1, D, J)
@@ -31,10 +32,10 @@ function estimate(ssm::StateSpace)
     μ = zeros(T, J)
     Σ = zeros(T, J, J)
 
-    m[1, :, :] = ssm.priors.m
-    P[1, :, :] = ssm.priors.P
-    S[1, :, :] = ssm.priors.S
-    Φ[1, :, :] = posterior_covariance(ssm.priors.S, ssm.priors.P)
+    m[1, :, :] = ssm.m
+    P[1, :, :] = ssm.P
+    S[1, :, :] = ssm.S
+    Φ[1, :, :] = posterior_covariance(ssm.S, ssm.P)
 
     for t = 1:T
         R = Δ * P[t, :, :] * Δ
