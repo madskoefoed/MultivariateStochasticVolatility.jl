@@ -31,6 +31,8 @@ function estimate(ssm::StateSpace)
     Φ = zeros(T + 1, d*p, d*p)
 
     μ = zeros(T, p)
+    e = zeros(T, p)
+    u = zeros(T, p)
     Σ = zeros(T, p, p)
 
     m[1, :, :] = ssm.m
@@ -46,11 +48,12 @@ function estimate(ssm::StateSpace)
         μ[t, :]    = m[t, :, :]' * G' * F[t, :]
         Σ[t, :, :] = Q * (1 - β) / (3β*k - 2k) * S[t, :, :]
 
-        e = y[t, :] - μ[t, :]
+        e[t, :] = y[t, :] - μ[t, :]
+        u[t, :] = standardized_error(y[t, :], μ[t, :], Σ[t, :, :])
 
-        m[t + 1, :, :] = G * m[t, :, :] + K * e'
+        m[t + 1, :, :] = G * m[t, :, :] + K * e[t, :]'
         P[t + 1, :, :] = R - K * K' * Q
-        S[t + 1, :, :] = S[t, :, :] / k + e * e' / Q
+        S[t + 1, :, :] = S[t, :, :] / k + e[t, :] * e[t, :]' / Q
     end
-    return (μ = μ, Σ = Σ, m = m, P = P, S = S, Φ = Φ, k, Δ)
+    return (μ = μ, Σ = Σ, e = e, u = u, m = m, P = P, S = S, Φ = Φ, k, Δ)
 end
