@@ -11,7 +11,8 @@ The hyperparameters 2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controll
 function estimate(ssm::StateSpace)
 
     y = ssm.y
-    x = ssm.x
+    F = ssm.F
+    G = ssm.G
 
     β = ssm.β
     δ = ssm.δ
@@ -20,17 +21,17 @@ function estimate(ssm::StateSpace)
     n = ssm.n
 
     # Constants
-    T, J = size(y)
-    D    = size(x, 2)
-    Δ = Matrix(LinearAlgebra.I, D, D)/sqrt(δ)
+    T, p = size(y)
+    d    = size(F, 2)
+    Δ = ones(d, d)/sqrt(δ)
 
-    m = zeros(T + 1, D, J)
-    P = zeros(T + 1, D, D)
-    S = zeros(T + 1, J, J)
-    Φ = zeros(T + 1, D*J, D*J)
+    m = zeros(T + 1, d, p)
+    P = zeros(T + 1, d, d)
+    S = zeros(T + 1, p, p)
+    Φ = zeros(T + 1, d*p, d*p)
 
-    μ = zeros(T, J)
-    Σ = zeros(T, J, J)
+    μ = zeros(T, p)
+    Σ = zeros(T, p, p)
 
     m[1, :, :] = ssm.m
     P[1, :, :] = ssm.P
@@ -38,16 +39,16 @@ function estimate(ssm::StateSpace)
     Φ[1, :, :] = posterior_covariance(ssm.S, ssm.P)
 
     for t = 1:T
-        R = Δ * P[t, :, :] * Δ
-        Q = x[t, :]' * R * x[t, :] + 1.0
-        K = R * x[t, :] / Q
+        R = Δ * G * P[t, :, :] * G' * Δ
+        Q = F[t, :]' * R * F[t, :] + 1.0
+        K = R * F[t, :] / Q
 
-        μ[t, :]    = m[t, :, :]' * x[t, :]
+        μ[t, :]    = m[t, :, :]' * G' * F[t, :]
         Σ[t, :, :] = Q * (1 - β) / (3β*k - 2k) * S[t, :, :]
 
         e = y[t, :] - μ[t, :]
 
-        m[t + 1, :, :] = m[t, :, :] + K * e'
+        m[t + 1, :, :] = G * m[t, :, :] + K * e'
         P[t + 1, :, :] = R - K * K' * Q
         S[t + 1, :, :] = S[t, :, :] / k + e * e' / Q
     end
