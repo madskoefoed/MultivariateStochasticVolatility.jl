@@ -15,15 +15,14 @@ function estimate(ssm::StateSpace)
     G = ssm.G
 
     β = ssm.β
-    δ = ssm.δ
-    ν = ssm.ν
+    #ν = ssm.ν
     k = ssm.k
-    n = ssm.n
+    #n = ssm.n
 
     # Constants
     T, p = size(y)
     d    = size(F, 2)
-    Δ = ones(d, d)/sqrt(δ)
+    Δ = ones(d, d)/sqrt(ssm.δ)
 
     m = zeros(T + 1, d, p)
     P = zeros(T + 1, d, d)
@@ -41,19 +40,23 @@ function estimate(ssm::StateSpace)
     Φ[1, :, :] = posterior_covariance(ssm.S, ssm.P)
 
     for t = 1:T
-        R = Δ * G * P[t, :, :] * G' * Δ
-        Q = F[t, :]' * R * F[t, :] + 1.0
-        K = R * F[t, :] / Q
+        R, Q, K = state_predict(F[t, :], G, P[t, :, :], Δ)
 
-        μ[t, :]    = m[t, :, :]' * G' * F[t, :]
-        Σ[t, :, :] = Q * (1 - β) / (3β*k - 2k) * S[t, :, :]
+        μ[t, :]    = output_mean(F[t, :], G, m[t, :, :])
+        Σ[t, :, :] = output_covariance(Q, S[t, :, :], β, k)
+
+        μ[t, :], Σ[t, :, :] = output_predict(F[t, :], G, Q, m[t, :, :], S[t, :, :], β, k)
 
         e[t, :] = y[t, :] - μ[t, :]
         u[t, :] = standardized_error(y[t, :], μ[t, :], Σ[t, :, :])
 
-        m[t + 1, :, :] = G * m[t, :, :] + K * e[t, :]'
-        P[t + 1, :, :] = R - K * K' * Q
-        S[t + 1, :, :] = S[t, :, :] / k + e[t, :] * e[t, :]' / Q
+        m[t + 1, :, :], P[t + 1, :, :], S[t + 1, :, :] = state_update(G, K, Q, R, m[t, :, :], S[t, :, :], e[t, :], k)
+
+        Φ[t + 1, :, :] = posterior_covariance(S[t + 1, :, :], P[t + 1, :, :])
+
+        #m[t + 1, :, :] = G * m[t, :, :] + K * e[t, :]'
+        #P[t + 1, :, :] = R - K * K' * Q
+        #S[t + 1, :, :] = S[t, :, :] / k + e[t, :] * e[t, :]' / Q
     end
     return (μ = μ, Σ = Σ, e = e, u = u, m = m, P = P, S = S, Φ = Φ, k, Δ)
 end

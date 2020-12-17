@@ -1,16 +1,19 @@
 module MultivariateStochasticVolatility
 
 # Import
-import LinearAlgebra#: diag, kron, I
-import Distributions#: Normal, MvNormal
+using LinearAlgebra#: diag, kron, I
+using Distributions#: Normal, MvNormal
 
 # Include scripts
 include("./src/types.jl")
 include("./src/utils.jl")
 include("./src/estimate.jl")
-include("./src/simulate.jl")
+#include("./src/simulate.jl")
+
+# Exported types
+export StateSpace, LocalLevel, LocalLevelTrend
 
 # Exported functions
-export estimate, simulate!
+export estimate
 
 end

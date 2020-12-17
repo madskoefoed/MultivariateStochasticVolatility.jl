@@ -1,13 +1,30 @@
 
+# Predict output
+output_mean(F, G, m) = m' * G' * F
+output_covariance(Q, S, β, k) = Q * (1 - β) / (3β*k - 2k) * S
+function output_predict(F, G, Q, m, S, β, k)
+    μ = m' * G' * F
+    Σ = Q * (1 - β) / (3β*k - 2k) * S
+    return (μ, Σ)
+end
+
+# Predict state
+function state_predict(F, G, P, Δ)
+    R = Δ * G * P * G' * Δ
+    Q = F' * R * F + 1.0
+    K = R * F / Q
+    return (R, Q, K)
+end
+
+# Update state
+function state_update(G, K, Q, R, m, S, e, k)
+    m = G * m + K * e'
+    P = R - K * K' * Q
+    S = S/k + e*e'/Q
+    return (m, P, S)
+end
 
 prior_covariance(S, P, Δ) = LinearAlgebra.kron(S, (Δ * P * Δ))
 posterior_covariance(S, P) = LinearAlgebra.kron(S, P)
 
-function standardized_error(y, μ, Σ)
-    T, p = size(y)
-    e = y - μ
-    for t in 1:T
-        e[t, :] = inv(cholesky(Σ))*e[t, :]
-    end
-    return e
-end
+standardized_error(y, μ, Σ) = inv(LinearAlgebra.cholesky(Σ))*(y - μ)
