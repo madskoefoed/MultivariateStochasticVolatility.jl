@@ -4,7 +4,7 @@
 
 # Packages
 using Plots
-import Distributions
+using Distributions
 
 # Generate time series with a doubling in volatility after 500 observations
 Σ = cholesky([1 -1; -1 2])
@@ -15,7 +15,7 @@ T = 500
 y = vcat(y, randn(T, 2) * Σ.U)
 
 # Struct containing y and priors
-s = LocalLevel(y, [5 -5], 10*ones(1, 1), Matrix(LinearAlgebra.I, 2, 2), 0.95, 0.95)
+s = LocalLevel(y, [5 -5], 10*ones(1, 1), Matrix(I, 2, 2), 0.95, 0.95)
 
 # Estimate
 m = estimate(s)

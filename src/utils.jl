@@ -2,6 +2,7 @@
 # Predict output
 output_mean(F, G, m) = m' * G' * F
 output_covariance(Q, S, β, k) = Q * (1 - β) / (3β*k - 2k) * S
+
 function output_predict(F, G, Q, m, S, β, k)
     μ = m' * G' * F
     Σ = Q * (1 - β) / (3β*k - 2k) * S
@@ -24,7 +25,7 @@ function state_update(G, K, Q, R, m, S, e, k)
     return (m, P, S)
 end
 
-prior_covariance(S, P, Δ) = LinearAlgebra.kron(S, (Δ * P * Δ))
-posterior_covariance(S, P) = LinearAlgebra.kron(S, P)
+prior_covariance(S, P, Δ) = kron(S, (Δ * P * Δ))
+posterior_covariance(S, P) = kron(S, P)
 
-standardized_error(y, μ, Σ) = inv(LinearAlgebra.cholesky(Σ))*(y - μ)
+standardized_error(y, μ, Σ) = inv(cholesky(Σ))*(y - μ)

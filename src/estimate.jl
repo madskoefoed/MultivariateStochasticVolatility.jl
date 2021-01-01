@@ -8,7 +8,7 @@ mean and volatility. Volatility is modelled as a random walk.
 The hyperparameters 2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controlling the shocks to the Σ and Ω respectively.
 """
 
-function estimate(ssm::StateSpace)
+function estimate(ssm::StateSpaceModel)
 
     y = ssm.y
     F = ssm.F
@@ -53,10 +53,6 @@ function estimate(ssm::StateSpace)
         m[t + 1, :, :], P[t + 1, :, :], S[t + 1, :, :] = state_update(G, K, Q, R, m[t, :, :], S[t, :, :], e[t, :], k)
 
         Φ[t + 1, :, :] = posterior_covariance(S[t + 1, :, :], P[t + 1, :, :])
-
-        #m[t + 1, :, :] = G * m[t, :, :] + K * e[t, :]'
-        #P[t + 1, :, :] = R - K * K' * Q
-        #S[t + 1, :, :] = S[t, :, :] / k + e[t, :] * e[t, :]' / Q
     end
     return (μ = μ, Σ = Σ, e = e, u = u, m = m, P = P, S = S, Φ = Φ, k, Δ)
 end
