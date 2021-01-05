@@ -9,50 +9,45 @@ The hyperparameters 2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controll
 """
 
 function estimate(ssm::StateSpaceModel)
+    y, F, G, β, k, m, P, S, β, δ, Δ, ν, n, k, T, p, d = ssm.y, ssm.F, ssm.G, ssm.β, ssm.k, ssm.m, ssm.P, ssm.S, ssm.β, ssm.δ, ssm.Δ, ssm.ν, ssm.n, ssm.k, ssm.T, ssm.p, ssm.d
 
-    y = ssm.y
-    F = ssm.F
-    G = ssm.G
-
-    β = ssm.β
-    #ν = ssm.ν
-    k = ssm.k
-    #n = ssm.n
-
-    # Constants
-    T, p = size(y)
-    d    = size(F, 2)
-    Δ = ones(d, d)/sqrt(ssm.δ)
-
-    m = zeros(T + 1, d, p)
-    P = zeros(T + 1, d, d)
-    S = zeros(T + 1, p, p)
-    Φ = zeros(T + 1, d*p, d*p)
-
-    μ = zeros(T, p)
-    e = zeros(T, p)
-    u = zeros(T, p)
-    Σ = zeros(T, p, p)
-
-    m[1, :, :] = ssm.m
-    P[1, :, :] = ssm.P
-    S[1, :, :] = ssm.S
-    Φ[1, :, :] = posterior_covariance(ssm.S, ssm.P)
+    predicted = (μ = zeros(T, p), Σ = zeros(T, p, p), e = zeros(T, p), u = zeros(T, p), m = zeros(T, d, p), R = zeros(T, d, d), S = zeros(T, p, p))
+    filtered  = (μ = zeros(T, p), Σ = zeros(T, p, p), e = zeros(T, p), u = zeros(T, p), m = zeros(T, d, p), P = zeros(T, d, d), S = zeros(T, p, p))
 
     for t = 1:T
-        R, Q, K = state_predict(F[t, :], G, P[t, :, :], Δ)
+        # Predict at time t-1
+        R = get_R(P, G, Δ)
+        Q = get_Q(F, R)
+        μ = m' * G' * F
+        e = y[t, :] - μ
+        Σ = Q * (1 - β) / (3β*k - 2k) * S
+        u = inv(cholesky(Σ).L) * e
 
-        μ[t, :]    = output_mean(F[t, :], G, m[t, :, :])
-        Σ[t, :, :] = output_covariance(Q, S[t, :, :], β, k)
+        predicted.μ[t, :]    = μ
+        predicted.Σ[t, :, :] = Σ
+        predicted.e[t, :, :] = e
+        predicted.u[t, :, :] = u
+        predicted.m[t, :, :] = m
+        predicted.R[t, :, :] = R
+        predicted.S[t, :, :] = S
 
-        μ[t, :], Σ[t, :, :] = output_predict(F[t, :], G, Q, m[t, :, :], S[t, :, :], β, k)
+        # Update at time t
+        K = get_K(F, R, Q)
+        m = get_m(m, G, K, e)
+        P = get_P(R, K, Q)
+        S = get_S(S, k, e, Q)
+        μ = m' * F
+        e = y[t, :] - μ
+        Σ = Q * (1 - β) / (2β - 1) * S
+        u = inv(cholesky(Σ).L) * e
 
-        e[t, :] = y[t, :] - μ[t, :]
-        u[t, :] = standardized_error(y[t, :], μ[t, :], Σ[t, :, :])
-
-        m[t + 1, :, :], P[t + 1, :, :], S[t + 1, :, :] = state_update(G, K, Q, R, m[t, :, :], S[t, :, :], e[t, :], k)
-
-        Φ[t + 1, :, :] = posterior_covariance(S[t + 1, :, :], P[t + 1, :, :])
+        filtered.μ[t, :]    = μ
+        filtered.Σ[t, :, :] = Σ
+        filtered.e[t, :, :] = e
+        filtered.u[t, :, :] = u
+        filtered.m[t, :, :] = m
+        filtered.P[t, :, :] = P
+        filtered.S[t, :, :] = S
     end
-    return (μ = μ, Σ = Σ, e = e, u = u, m = m, P = P, S = S, Φ = Φ, k, Δ)
+    return (predicted = predicted, filtered = filtered)
 end

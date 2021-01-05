@@ -3,6 +3,7 @@ module MultivariateStochasticVolatility
 # Import
 using LinearAlgebra #: diag, kron, I
 using Distributions #: Normal, MvNormal
+using Plots
 
 # Include scripts
 include("./src/types.jl")
