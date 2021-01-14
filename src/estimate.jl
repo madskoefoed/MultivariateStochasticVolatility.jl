@@ -2,14 +2,16 @@
 """
 estimate(x; β::Real, δ::Real)
 
-Estimate a stochastic volatility model with time-varying
-mean and volatility. Volatility is modelled as a random walk.
+Estimate a stochastic volatility model. Volatility is modelled as a random walk.
 
 The hyperparameters 2/3 < β < 1 and 0 < δ ≤ 1 are discount factors, controlling the shocks to the Σ and Ω respectively.
 """
 
 function estimate(ssm::StateSpaceModel)
-    y, F, G, β, k, m, P, S, β, δ, Δ, ν, n, k, T, p, d = ssm.y, ssm.F, ssm.G, ssm.β, ssm.k, ssm.m, ssm.P, ssm.S, ssm.β, ssm.δ, ssm.Δ, ssm.ν, ssm.n, ssm.k, ssm.T, ssm.p, ssm.d
+    y, F, G, m, P, S, β, δ, Δ, ν, n, k = ssm.y, ssm.F, ssm.G, ssm.m, ssm.P, ssm.S, ssm.β, ssm.δ, ssm.Δ, ssm.ν, ssm.k, ssm.k
+
+    T, p = size(y)
+    d = size(m, 1)
 
     predicted = (μ = zeros(T, p), Σ = zeros(T, p, p), e = zeros(T, p), u = zeros(T, p), m = zeros(T, d, p), R = zeros(T, d, d), S = zeros(T, p, p))
     filtered  = (μ = zeros(T, p), Σ = zeros(T, p, p), e = zeros(T, p), u = zeros(T, p), m = zeros(T, d, p), P = zeros(T, d, d), S = zeros(T, p, p))

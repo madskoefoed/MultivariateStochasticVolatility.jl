@@ -1,6 +1,3 @@
-######################################
-### Multivariate local level model ###
-######################################
 
 # Packages
 using Plots
