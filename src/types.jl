@@ -1,23 +1,22 @@
 abstract type SSM end
 
 mutable struct StateSpaceModel <: SSM
-    y::Matrix{<:Real} # T x p (response matrix)
-    F::Vector{<:Real} # d x 1 (design vector)
-    G::Matrix{<:Real} # d x d (evolution matrix)
+    y::REALMAT # T x p (response matrix)
+    F::REALVEC # d x 1 (design vector)
+    G::REALMAT # d x d (evolution matrix)
 
-    m::Matrix{<:Real} # d x p (parameter means)
-    P::Matrix{<:Real} # d x d (parameter covariance)
-    S::Matrix{<:Real} # p x p ()
+    m::REALMAT # d x p (parameter means)
+    P::REALMAT # d x d (parameter covariance)
+    S::REALMAT # p x p ()
 
     β::Real # Discount factor for covariance matrix
     δ::Real # Discount factor for parameters
-    Δ::Matrix{<:Real}
+    Δ::REALMAT
     ν::Real # Degrees of freedom of student-t distribution (calculated from β)
     n::Real #
     k::Real # Ensures that Σ is a random walk
 
     function StateSpaceModel(y, F, G, m, P, S, β, δ)
-        T = size(y, 1)
         p = size(y, 2)
         d = size(m, 1)
 
@@ -38,14 +37,14 @@ mutable struct StateSpaceModel <: SSM
 end
 
 # Constructors for local level
-function LocalLevel(y::Matrix{<:Real}, m::Matrix{<:Real}, P::Matrix{<:Real}, S::Matrix{<:Real}, β::Real, δ::Real)
+function LocalLevel(y::REALMAT, m::REALMAT, P::REALMAT, S::REALMAT, β::Real, δ::Real)
     F = [1]
     G = ones(1, 1)
     return StateSpaceModel(y, F, G, m, P, S, β, δ)
 end
 
 # Constructors for local level trend
-function LocalLevelTrend(y::Matrix{<:Real}, m::Matrix{<:Real}, P::Matrix{<:Real}, S::Matrix{<:Real}, β::Real, δ::Real)
+function LocalLevelTrend(y::REALMAT, m::REALMAT, P::REALMAT, S::REALMAT, β::Real, δ::Real)
     F = [1, 0]
     G = [1 1;
          0 1]
@@ -53,7 +52,7 @@ function LocalLevelTrend(y::Matrix{<:Real}, m::Matrix{<:Real}, P::Matrix{<:Real}
 end
 
 # Constructors for local level cycle
-function LocalLevelCycle(y::Matrix{<:Real}, m::Matrix{<:Real}, P::Matrix{<:Real}, S::Matrix{<:Real}, β::Real, δ::Real)
+function LocalLevelCycle(y::REALMAT, m::REALMAT, P::REALMAT, S::REALMAT, β::Real, δ::Real)
     F = [1, 1, 0]
     G = [1 0 0;
          0 0 0;

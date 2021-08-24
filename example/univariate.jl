@@ -2,6 +2,9 @@
 Example: a univariate time series (local linear trend) with an increasing variance, going from 1 to 5.
 """
 
+# Packages
+using Plots
+
 T = 1_000
 y = zeros(T, 1)
 F = [1, 0]
@@ -12,7 +15,6 @@ S = Matrix(I, 1, 1)
 
 #s = StateSpaceModel(y, F, G, m, P, S, 0.95, 0.95)
 s = LocalLevelTrend(y, m, P, S, 0.98, 0.98)
-
 
 # Simulate
 simulate!(s)

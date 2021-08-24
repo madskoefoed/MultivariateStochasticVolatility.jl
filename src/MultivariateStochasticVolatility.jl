@@ -1,17 +1,18 @@
 module MultivariateStochasticVolatility
 
 # Import
-using LinearAlgebra #: diag, kron, I
-using Distributions #: Normal, MvNormal
-using Plots
+using LinearAlgebra: diag, diagm, kron, I, cholesky
+using Distributions: Normal, MvNormal, InverseWishart, MatrixNormal
+
+# Constants
+const REALMAT = Matrix{T} where T <:Real
+const REALVEC = Vector{T} where T <:Real
 
 # Include scripts
-include("./src/types.jl")
-include("./src/utils.jl")
-include("./src/estimate.jl")
-include("./src/simulate.jl")
-
-include("./example/univariate.jl")
+include("types.jl")
+include("utils.jl")
+include("estimate.jl")
+include("simulate.jl")
 
 # Exported types
 export StateSpace, LocalLevel, LocalLevelTrend
