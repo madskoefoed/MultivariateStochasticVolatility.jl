@@ -1,7 +1,3 @@
-mutable struct MvStochVolBatch
-    model::Vector{MvStochVol}
-end
-
 mutable struct MvStochVol
     measurement::Vector{<:Real}
     error::Vector{<:Real}
