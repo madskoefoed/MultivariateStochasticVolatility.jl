@@ -1,6 +1,5 @@
 using MultivariateStochasticVolatility
 using Test
-using PDMats
 using LinearAlgebra
 
 #######################
@@ -16,19 +15,23 @@ using LinearAlgebra
     @test isapprox(h.δ, 0.9)
 end
 
-##############
-### Priors ###
-##############
-@testset "Priors" begin
-    h = Hyperparameters()
+##################
+### Parameters ###
+##################
+@testset "Parameters" begin
     p = 2
-    m = [-1.0, 5.0]
+    m = [-1, 5]
     P = 999.9
-    S = PDMat(Matrix(Diagonal(ones(p)*10)))
-    priors = Priors(m, P, S, h)
-    @test length(priors.m) == p
-    @test length(priors.P) == 1
-    @test size(priors.S, 1) == size(priors.S, 2)
+    S = [10 0;
+          0 1]
+    param = Parameters(m, P, S)
+    @test length(param.m) == p
+    @test length(param.P) == 1
+    @test size(param.S, 1) == size(param.S, 2)
+    @test param.S[1,1] == 10
+    @test param.m[1] == -1
+    @test sum(param.m) == 4
+    @test param.P > 0
 end
 
 ################
@@ -37,8 +40,8 @@ end
 @testset "Simulate" begin
     T = 50
     p = 3
-    Φ = rand(p)
-    Σ = PDMat(Matrix(Diagonal([1, 2, 3])))
+    Φ = collect(p:-1:1)
+    Σ = Diagonal(collect(1:p))
     y = simulate(T, Φ, Σ)
 
     @test size(y, 1) == T
@@ -48,6 +51,17 @@ end
 ################
 ### Estimate ###
 ################
-#@testset "Estimate" begin
-#end
+@testset "Estimate" begin
+    T = 50
+    p = 3
+    Φ = collect(p:-1:1)
+    Σ = Diagonal(collect(1:p))
+    y = simulate(T, Φ, Σ)
+
+    hyper = Hyperparameters()
+    param = Parameters(zeros(p), 1000.0, Matrix(Diagonal([1, 1, 1])))
+    model = MvStochVol(param, hyper)
+    
+    estimate!(model, y)
+end
 

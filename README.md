@@ -66,8 +66,8 @@ In Triantafyllopoulus (2008) a weakly prior specificion is suggested as $m_{d} =
 ```julia
 # Weakly prior specification
 m = zeros(2*3+1, 2)
-P = PDMat(Diagonal(1000*ones(2*3+1)))
-S = PDMat(Diagonal(ones(2)))
+P = Diagonal(1000*ones(2*3+1))
+S = Diagonal(ones(2))
 
 # Create the struct Prior
 priors = Priors(m, P, S)
