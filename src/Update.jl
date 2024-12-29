@@ -1,13 +1,13 @@
 
-function estimate!(model::MvStochVol, y::AbstractMatrix)
+function update!(model::MvStochVol, y::AbstractMatrix)
     for t in axes(y, 1)
-        estimate!(model, y[t, :])
+        update!(model, y[t, :])
     end
 
     return nothing
 end
 
-function estimate!(model::MvStochVol, y::AbstractVector)
+function update!(model::MvStochVol, y::AbstractVector)
     model.measurement = y
 
     # Update at time t|t

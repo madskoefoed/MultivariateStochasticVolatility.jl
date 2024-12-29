@@ -12,13 +12,13 @@ include("Hyperparameters.jl")
 include("Parameters.jl")
 include("Predictive.jl")
 include("Models.jl")
-include("Estimate.jl")
+include("Update.jl")
 include("Simulate.jl")
 
 # Exported types
 export MvStochVol, Hyperparameters, Parameters, MvTDist
 
 # Exported functions
-export estimate!, simulate
+export update!, simulate
 
 end
