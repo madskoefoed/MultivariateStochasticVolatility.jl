@@ -3,7 +3,8 @@ mutable struct MvStochVol
     error::Vector{<:Real}
     parameters::Parameters
     predictive::Predictive
-    #loglikelihood::AbstractFloat
+    observations::Integer
+    loglikelihood::Float64
     const hyperparameters::Hyperparameters
     const p::Integer
     const k::AbstractFloat
@@ -17,9 +18,10 @@ mutable struct MvStochVol
         # Get prior predictive
         pred = get_predictive(param, h)
 
-        #ll  = 0.0
+        obs = 0
+        ll  = 0.0
 
-        new(y, e, param, pred, h, p, k)
+        new(y, e, param, pred, obs, ll, h, p, k)
     end
 end
 

@@ -18,7 +18,9 @@ function update!(model::MvStochVol, y::AbstractVector)
     prior_predictive!(model)
 
     # Predictive log-likelihood
-    #model.loglikelihood += logpdf(ppd, y)
+    dist = MvTDist(model.hyperparameters.ν, model.predictive.μ, model.predictive.Σ)
+    llt = logpdf(dist, y)
+    model.loglikelihood += llt
 
     return nothing
 end
