@@ -22,6 +22,8 @@ function update!(model::MvStochVol, y::AbstractVector)
     llt = logpdf(dist, y)
     model.loglikelihood += llt
 
+    model.observations += 1
+
     return nothing
 end
 
