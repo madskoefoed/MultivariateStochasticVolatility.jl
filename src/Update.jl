@@ -28,7 +28,6 @@ function update!(model::MvStochVol, y::AbstractVector)
 end
 
 function prior_parameters!(model::MvStochVol)
-    model.parameters.m = model.parameters.m
     model.parameters.P = model.parameters.P/model.hyperparameters.δ
     model.parameters.S = model.parameters.S/model.k
 
@@ -39,13 +38,16 @@ function posterior_parameters!(model::MvStochVol, y::Vector{<:AbstractFloat})
     # Prediction error
     model.error = y - model.parameters.m
 
+    # Scaled prediction error
+    model.scaled = invert_cholesky(model.predictive.Σ) * model.error
+
     # Update
     Q = model.parameters.P + 1
     K = model.parameters.P / Q
     
-    model.parameters.m += K * model.error
-    model.parameters.P -= K * K' * Q
-    model.parameters.S += model.error*model.error'/Q
+    model.parameters.m = model.parameters.m + K * model.error
+    model.parameters.P = model.parameters.P - (K * K') * Q
+    model.parameters.S = model.parameters.S + (model.error*model.error')/Q
     
     return nothing
 end
@@ -63,7 +65,7 @@ end
 #error(y::FLOATVEC, μ::FLOATVEC) = y - μ
 #error(y::FLOATVEC, pred::PriorPredictive) = y - pred.μ
 
-#inert_cholesky(Σ::AbstractMatrix) = inv(cholesky(Σ).L)
+invert_cholesky(Σ::AbstractMatrix) = inv(cholesky(Σ).L)
 
 #standardised_error(e, Σ::AbstractMatrix)              = invert_cholesky(Σ) * e
 #standardised_error(e, pred::PriorPredictive) = standardised_error(pred.Σ) * e

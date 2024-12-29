@@ -1,6 +1,7 @@
 mutable struct MvStochVol
     measurement::Vector{<:Real}
-    error::Vector{<:Real}
+    error::Vector{<:Float64}
+    scaled::Vector{<:Float64}
     parameters::Parameters
     predictive::Predictive
     observations::Integer
@@ -13,15 +14,16 @@ mutable struct MvStochVol
         p = get_p(param)
         y = Vector{Float64}(undef, p)
         e = Vector{Float64}(undef, p)
+        z = Vector{Float64}(undef, p)
         k = get_k(h, p)
 
         # Get prior predictive
-        pred = get_predictive(param, h)
+        pred = prior_predictive(param, h)
 
         obs = 0
         ll  = 0.0
 
-        new(y, e, param, pred, obs, ll, h, p, k)
+        new(y, e, z, param, pred, obs, ll, h, p, k)
     end
 end
 
