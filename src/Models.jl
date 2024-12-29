@@ -33,3 +33,7 @@ get_k(h::Hyperparameters, p::Integer) = (h.β - p*h.β + p)/(h.β - p*h.β + p -
 get_df(h::Hyperparameters)            = h.ν 
 get_loglik(model::MvStochVol)         = logpdf(MvTDist(model.hyperparameters.ν, model.predictive.μ, model.predictive.Σ),
                                                model.measurement)
+
+function prior_distribution(model::MvStochVol)
+    return MvTDist(model.hyperparameters.ν, model.predictive.μ, model.predictive.Σ)
+end

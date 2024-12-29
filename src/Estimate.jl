@@ -17,6 +17,16 @@ function estimate!(model::MvStochVol, y::AbstractVector)
     return nothing
 end
 
+function update(model::MvStochVol, y::AbstractMatrix)
+    models = MvStochVol[]
+    for t in axes(y, 1)
+        update!(model, y[t, :])
+
+        push!(models, model)
+    end
+
+    return models
+end
 
 function predict!(model::MvStochVol)
     model.priors.P = model.posteriors.P/model.hyperparameters.δ
@@ -48,7 +58,7 @@ function update!(model::MvStochVol, y::Vector{<:AbstractFloat})
     model.posteriors.S = model.priors.S + (model.error*model.error')/Q
     
     # Predictive log-likelihood
-    dist = MvTDist(model.hyperparameters.ν, model.predictive.μ, model.predictive.Σ)
+    dist = prior_distribution(model)
     model.loglikelihood += logpdf(dist, y)
 
     model.observations += 1
@@ -56,20 +66,4 @@ function update!(model::MvStochVol, y::Vector{<:AbstractFloat})
     return nothing
 end
 
-#function prior_predictive!(model::MvStochVol)
-#    model.predictive.μ = prior_μ(model.parameters.m)
-#    model.predictive.Σ = prior_Σ(model.parameters.P, model.parameters.S, model.hyperparameters)
-
-#    return nothing
-#end
-
-#μ = m
-    #Σ = (P + 1) * (1 - h.β) / (2*h.β - 1) * S
-
-#error(y::FLOATVEC, μ::FLOATVEC) = y - μ
-#error(y::FLOATVEC, pred::PriorPredictive) = y - pred.μ
-
 invert_cholesky(Σ::AbstractMatrix) = inv(cholesky(Σ).L)
-
-#standardised_error(e, Σ::AbstractMatrix)              = invert_cholesky(Σ) * e
-#standardised_error(e, pred::PriorPredictive) = standardised_error(pred.Σ) * e
