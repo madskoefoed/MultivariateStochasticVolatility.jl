@@ -16,7 +16,7 @@ mutable struct Parameters
 
         m = convert(Vector{Float64}, m)
         P = convert(Float64, P)
-        S = convert(AbstractMatrix{Float64}, S)
+        S = convert(Matrix{Float64}, S)
 
         new(m, P, S)
     end

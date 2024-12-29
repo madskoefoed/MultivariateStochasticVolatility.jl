@@ -5,14 +5,15 @@ module MultivariateStochasticVolatility
 # Import
 using LinearAlgebra: diag, kron, I, cholesky, Diagonal, isposdef
 using Distributions: Normal, MvNormal, MvTDist, logpdf
-#using PDMats: PDMat
+using PDMats: PDMat
 
 # Include scripts
 include("Hyperparameters.jl")
 include("Parameters.jl")
 include("Predictive.jl")
 include("Models.jl")
-include("Update.jl")
+include("Estimate.jl")
+include("Batch.jl")
 include("Simulate.jl")
 
 # Exported types

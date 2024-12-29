@@ -20,3 +20,6 @@ end
 
 prior_μ(m::Vector{<:AbstractFloat}) = m
 prior_Σ(P::AbstractFloat, S::AbstractMatrix, h::Hyperparameters) = (P + 1) * (1 - h.β) / (3*h.β - 2) * S
+
+prior_μ(param::Parameters) = param.m
+prior_Σ(param::Parameters, h::Hyperparameters) = prior_Σ(param.P, param.S, h)

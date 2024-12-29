@@ -1,8 +1,9 @@
 mutable struct MvStochVol
     measurement::Vector{<:Real}
-    error::Vector{<:Float64}
-    scaled::Vector{<:Float64}
-    parameters::Parameters
+    error::Vector{Float64}
+    scaled::Vector{Float64}
+    priors::Parameters
+    posteriors::Parameters
     predictive::Predictive
     observations::Integer
     loglikelihood::Float64
@@ -18,17 +19,17 @@ mutable struct MvStochVol
         k = get_k(h, p)
 
         # Get prior predictive
-        pred = prior_predictive(param, h)
-
+        pred = Predictive(prior_μ(param), prior_Σ(param, h))
+    
         obs = 0
         ll  = 0.0
 
-        new(y, e, z, param, pred, obs, ll, h, p, k)
+        new(y, e, z, param, param, pred, obs, ll, h, p, k)
     end
 end
 
-get_p(param::Parameters) = size(param.S, 1)
+get_p(param::Parameters)              = size(param.S, 1)
 get_k(h::Hyperparameters, p::Integer) = (h.β - p*h.β + p)/(h.β - p*h.β + p - 1)
-get_df(h::Hyperparameters) = h.ν 
-
-get_loglik(model::MvStochVol) = logpdf(MvTDist(model.hyperparameters.ν, model.predictive.μ, model.predictive.Σ), model.measurement)
+get_df(h::Hyperparameters)            = h.ν 
+get_loglik(model::MvStochVol)         = logpdf(MvTDist(model.hyperparameters.ν, model.predictive.μ, model.predictive.Σ),
+                                               model.measurement)
