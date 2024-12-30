@@ -10,12 +10,12 @@ h = MultivariateStochasticVolatility.Hyperparameters(0.95, 0.95);
 
 # Parameters
 m = ones(4);
-P = 10;
+R = 10;
 S = MultivariateStochasticVolatility.Diagonal(ones(4) * 1000);
-param = MultivariateStochasticVolatility.Parameters(m, P, S);
+priors = MultivariateStochasticVolatility.Priors(m, R, S);
 
 # Model
-model = MultivariateStochasticVolatility.MvStochVol(param, h);
+model = MultivariateStochasticVolatility.MvStochVol(priors, h);
 
 # Estimation
 MultivariateStochasticVolatility.estimate!(model, y);

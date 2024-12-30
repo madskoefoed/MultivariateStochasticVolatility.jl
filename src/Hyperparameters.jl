@@ -14,3 +14,6 @@ mutable struct Hyperparameters
 end
 
 Hyperparameters() = Hyperparameters(0.99, 0.99)
+
+get_k(h::Hyperparameters, p::Integer) = (h.β - p*h.β + p)/(h.β - p*h.β + p - 1)
+get_df(h::Hyperparameters)            = h.ν 

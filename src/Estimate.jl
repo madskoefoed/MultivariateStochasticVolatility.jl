@@ -8,8 +8,8 @@ function estimate!(model::MvStochVol, y::AbstractMatrix)
 end
 
 function estimate!(model::MvStochVol, y::AbstractVector)
-    predict!(model)     # Predict at time t|t-1
     update!(model, y)   # Update at time t|t
+    predict!(model)     # Predict at time t+1|t
 
     return nothing
 end
@@ -27,11 +27,12 @@ function estimate(model::MvStochVol, y::AbstractMatrix)
 end
 
 function predict!(model::MvStochVol)
-    model.priors.P = model.posteriors.P/model.hyperparameters.δ
+    model.priors.m = model.posteriors.m
+    model.priors.R = model.posteriors.P/model.hyperparameters.δ
     model.priors.S = model.posteriors.S/model.k
 
-    model.predictive.μ = prior_μ(model.priors)
-    model.predictive.Σ = prior_Σ(model.priors, model.hyperparameters)
+    model.prior_predictive.μ = get_mean(model.priors)
+    model.prior_predictive.Σ = get_covariance(model.priors, model.hyperparameters)
 
     return nothing
 end
@@ -39,25 +40,25 @@ end
 function update!(model::MvStochVol, y::Vector{<:AbstractFloat})
     @assert length(y) == model.p "The measurement vector 'y' must have $(model.p) elements, but has $(length(y))"
 
-    model.measurement = y
+    model.measurements = y
 
     # Prediction error
-    model.error = model.measurement - model.priors.m
+    model.errors = model.measurements - model.priors.m
 
     # Scaled prediction error
-    model.scaled = invert_cholesky(model.predictive.Σ) * model.error
+    model.standardized = invert_cholesky(model.prior_predictive.Σ) * model.errors
 
     # Update
-    Q = model.priors.P + 1
-    K = model.priors.P / Q
+    Q = model.priors.R + 1
+    K = model.priors.R / Q
     
-    model.posteriors.m = model.priors.m + K * model.error
-    model.posteriors.P = model.priors.P - (K * K') * Q
-    model.posteriors.S = model.priors.S + (model.error*model.error')/Q
+    model.posteriors.m = model.priors.m + K * model.errors
+    model.posteriors.P = model.priors.R - (K * K') * Q
+    model.posteriors.S = model.priors.S + (model.errors*model.errors')/Q
     
     # Predictive log-likelihood
-    dist = prior_distribution(model)
-    model.loglikelihood += logpdf(dist, y)
+    #dist = prior_distribution(model)
+    #model.loglikelihood += logpdf(dist, y)
 
     model.observations += 1
     

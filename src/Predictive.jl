@@ -1,8 +1,9 @@
-mutable struct Predictive
+mutable struct PriorPredictive
     μ::Vector{<:AbstractFloat}
     Σ::AbstractMatrix
 
-    function Predictive(μ::Vector{<:AbstractFloat}, Σ::AbstractMatrix)
+    function PriorPredictive(μ::Vector{<:AbstractFloat},
+                        Σ::AbstractMatrix)
 
         str = "μ is a $(length(μ))-dimensional vector, but Σ is a $(size(Σ, 1)) x $(size(Σ, 2)) matrix."
         !(length(μ) == size(Σ, 1) == size(Σ, 2)) && throw(DimensionMismatch(str))
@@ -11,15 +12,12 @@ mutable struct Predictive
     end
 end
 
-function prior_predictive(param::Parameters, h::Hyperparameters)
-    μ = prior_μ(param.m)
-    Σ = prior_Σ(param.P, param.S, h)
+function PriorPredictive(priors::Priors, h::Hyperparameters)
+    μ = get_mean(priors)
+    Σ = get_covariance(priors, h)
 
-    return Predictive(μ, Σ)
+    return PriorPredictive(μ, Σ)
 end
 
-prior_μ(m::Vector{<:AbstractFloat}) = m
-prior_Σ(P::AbstractFloat, S::AbstractMatrix, h::Hyperparameters) = (P + 1) * (1 - h.β) / (3*h.β - 2) * S
-
-prior_μ(param::Parameters) = param.m
-prior_Σ(param::Parameters, h::Hyperparameters) = prior_Σ(param.P, param.S, h)
+get_mean(priors::Priors) = priors.m
+get_covariance(priors::Priors, h::Hyperparameters) = (priors.R + 1) * (1 - h.β) / (3*h.β - 2) * priors.S
