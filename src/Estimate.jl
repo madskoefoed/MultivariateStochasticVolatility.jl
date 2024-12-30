@@ -1,28 +1,26 @@
 
 function estimate!(model::MvStochVol, y::AbstractMatrix)
     for t in axes(y, 1)
-        estimate!(model, y[t, :])
+        estimate!(model, y[t, :])   # Predict at time t|t-1 and update at time t|t
     end
 
     return nothing
 end
 
 function estimate!(model::MvStochVol, y::AbstractVector)
-    # Predict at time t|t-1
-    predict!(model)
-    
-    # Update at time t|t
-    update!(model, y)
+    predict!(model)     # Predict at time t|t-1
+    update!(model, y)   # Update at time t|t
 
     return nothing
 end
 
 function estimate(model::MvStochVol, y::AbstractMatrix)
-    models = MvStochVol[]
+    T = size(y, 1)
+    models = Vector{MvStochVol}(undef, T)
     for t in axes(y, 1)
         estimate!(model, y[t, :])
 
-        push!(models, model)
+        models[t] = model
     end
 
     return models
