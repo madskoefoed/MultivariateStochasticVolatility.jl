@@ -21,3 +21,14 @@ mutable struct Parameters
         new(m, P, S)
     end
 end
+
+# Outer constructors
+function Parameters(p::Integer)
+    @assert p > 0 "The input 'p' must be a strictly positive integer"
+
+    m = zeros(p)
+    P = 1000.0
+    S = Diagonal(ones(p))
+
+    return Parameters(m, P, S)
+end
