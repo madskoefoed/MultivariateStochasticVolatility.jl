@@ -17,10 +17,10 @@ function estimate!(model::MvStochVol, y::AbstractVector)
     return nothing
 end
 
-function update(model::MvStochVol, y::AbstractMatrix)
+function estimate(model::MvStochVol, y::AbstractMatrix)
     models = MvStochVol[]
     for t in axes(y, 1)
-        update!(model, y[t, :])
+        estimate!(model, y[t, :])
 
         push!(models, model)
     end

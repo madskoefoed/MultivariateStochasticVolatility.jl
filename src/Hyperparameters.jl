@@ -1,7 +1,7 @@
 mutable struct Hyperparameters
-    β::AbstractFloat
-    δ::AbstractFloat
-    ν::AbstractFloat
+    β::Real
+    δ::Real
+    ν::Real
 
     function Hyperparameters(β::AbstractFloat, δ::AbstractFloat)
         (δ > 0   && δ <= 1) || throw(ArgumentError("0 < δ ≤ 1 required (currently $δ)."))

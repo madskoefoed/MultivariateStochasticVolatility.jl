@@ -57,11 +57,22 @@ end
     Φ = collect(p:-1:1)
     Σ = Diagonal(collect(1:p))
     y = simulate(T, Φ, Σ)
+    m = zeros(p)
+    P = 1000.0
+    S = Diagonal(ones(p))
 
     hyper = Hyperparameters()
-    param = Parameters(zeros(p), 1000.0, Matrix(Diagonal([1, 1, 1])))
+    param = Parameters(m, P, S)
     model = MvStochVol(param, hyper)
     
     estimate!(model, y)
+
+    hyper = Hyperparameters()
+    param = Parameters(m, P, S)
+    model = MvStochVol(param, hyper)
+    
+    batch = estimate(model, y)
+
+
 end
 
