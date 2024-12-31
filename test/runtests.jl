@@ -21,17 +21,26 @@ end
 @testset "Parameters" begin
     p = 2
     m = [-1, 5]
+    R = 999.9
     P = 999.9
     S = [10 0;
           0 1]
-    param = Parameters(m, P, S)
+    param = Priors(m, R, S)
+    @test length(param.m) == p
+    @test length(param.R) == 1
+    @test size(param.S, 1) == size(param.S, 2)
+    @test param.S[1, 1] == 10
+    @test param.m[1] == -1
+    @test sum(param.m) == 4
+    @test isapprox(param.R, R)
+    param = Posteriors(m, P, S)
     @test length(param.m) == p
     @test length(param.P) == 1
     @test size(param.S, 1) == size(param.S, 2)
-    @test param.S[1,1] == 10
+    @test param.S[1, 1] == 10
     @test param.m[1] == -1
     @test sum(param.m) == 4
-    @test param.P > 0
+    @test isapprox(param.P, P)
 end
 
 ################
@@ -61,18 +70,16 @@ end
     P = 1000.0
     S = Diagonal(ones(p))
 
-    hyper = Hyperparameters()
-    param = Parameters(m, P, S)
-    model = MvStochVol(param, hyper)
+    hyper  = Hyperparameters()
+    priors = Priors(m, P, S)
+    model  = MvStochVol(priors, hyper)
     
     estimate!(model, y)
 
-    hyper = Hyperparameters()
-    param = Parameters(m, P, S)
-    model = MvStochVol(param, hyper)
+    hyper  = Hyperparameters()
+    priors = Priors(m, P, S)
+    model  = MvStochVol(priors, hyper)
     
     batch = estimate(model, y)
-
-
 end
 

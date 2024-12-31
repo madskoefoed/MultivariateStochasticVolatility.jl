@@ -16,7 +16,8 @@ include("Estimate.jl")
 include("Simulate.jl")
 
 # Exported types
-export MvStochVol, Hyperparameters, Parameters, Predictive, MvTDist
+export MvStochVol, Hyperparameters, Priors, Posteriors
+export PriorPredictive, MvTDist
 
 # Exported functions
 export estimate, estimate!, simulate
