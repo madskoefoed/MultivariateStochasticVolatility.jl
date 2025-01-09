@@ -61,6 +61,7 @@ end
 ### Estimate ###
 ################
 @testset "Estimate" begin
+    ### ONLINE ###
     T = 50
     p = 3
     Φ = collect(p:-1:1)
@@ -76,6 +77,9 @@ end
     
     estimate!(model, y)
 
+    @test model.observations == T
+
+    ### BATCH ###
     hyper  = Hyperparameters()
     priors = Priors(m, P, S)
     model  = MvStochVol(priors, hyper)

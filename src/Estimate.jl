@@ -1,7 +1,7 @@
 
 function estimate!(model::MvStochVol, y::AbstractMatrix)
     for t in axes(y, 1)
-        estimate!(model, y[t, :])   # Predict at time t|t-1 and update at time t|t
+        estimate!(model, y[t, :])   # Update at time t|t and predict at time t+1|t
     end
 
     return nothing
@@ -14,55 +14,28 @@ function estimate!(model::MvStochVol, y::AbstractVector)
     return nothing
 end
 
-function estimate(model::MvStochVol, y::AbstractMatrix)
-    T = size(y, 1)
-    models = Vector{MvStochVol}(undef, T)
-    for t in axes(y, 1)
-        estimate!(model, y[t, :])
+function update!(model::MvStochVol, y::Vector{<:AbstractFloat})
+    lp = length(model.predictions)
+    lm = length(model.updates)
+    @assert lp == lm + 1 "There must be $(lm+1) prediction steps, but there are $lp"
 
-        models[t] = model
-    end
+    @assert length(y) == model.p "The measurement vector 'y' must have $(model.p) elements, but has $(length(y))"
+    
+    update_step = UpdateStep(model.predictions[end], model.hyperparameters, y)
 
-    return models
+    push!(model.updates, update_step)
+
+    return nothing
 end
 
 function predict!(model::MvStochVol)
-    model.priors.m = model.posteriors.m
-    model.priors.R = model.posteriors.P/model.hyperparameters.δ
-    model.priors.S = model.posteriors.S/model.k
+    lp = length(model.predictions)
+    lm = length(model.updates)
+    @assert lp == lm "To be able to make a prediction at time t+1, the model needs to be updated with information at time t"
 
-    model.prior_predictive.μ = get_mean(model.priors)
-    model.prior_predictive.Σ = get_covariance(model.priors, model.hyperparameters)
+    predict_step = PredictStep(model.updates[end], model.hyperparameters)
+
+    push!(model.predictions, predict_step)
 
     return nothing
 end
-
-function update!(model::MvStochVol, y::Vector{<:AbstractFloat})
-    @assert length(y) == model.p "The measurement vector 'y' must have $(model.p) elements, but has $(length(y))"
-
-    model.measurements = y
-
-    # Prediction error
-    model.errors = model.measurements - model.priors.m
-
-    # Scaled prediction error
-    model.standardized = invert_cholesky(model.prior_predictive.Σ) * model.errors
-
-    # Update
-    Q = model.priors.R + 1
-    K = model.priors.R / Q
-    
-    model.posteriors.m = model.priors.m + K * model.errors
-    model.posteriors.P = model.priors.R - (K * K') * Q
-    model.posteriors.S = model.priors.S + (model.errors*model.errors')/Q
-    
-    # Predictive log-likelihood
-    #dist = prior_distribution(model)
-    #model.loglikelihood += logpdf(dist, y)
-
-    model.observations += 1
-    
-    return nothing
-end
-
-invert_cholesky(Σ::AbstractMatrix) = inv(cholesky(Σ).L)
