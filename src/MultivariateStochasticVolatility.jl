@@ -9,8 +9,6 @@ using PDMats: PDMat
 
 # Include scripts
 include("Hyperparameters.jl")
-include("Parameters.jl")
-include("TimeStep.jl")
 include("Models.jl")
 include("Estimate.jl")
 include("Simulate.jl")

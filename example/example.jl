@@ -13,10 +13,8 @@ m = ones(4);
 P = 10;
 S = MultivariateStochasticVolatility.Diagonal(ones(4) * 1000);
 
-param = MultivariateStochasticVolatility.Parameters(m, P, S)
-
 # Model
-model = MultivariateStochasticVolatility.MvStochVol(param, hyper);
+model = MultivariateStochasticVolatility.MvStochVol(m, P, S, hyper);
 
 # Estimation
 MultivariateStochasticVolatility.estimate!(model, y);
