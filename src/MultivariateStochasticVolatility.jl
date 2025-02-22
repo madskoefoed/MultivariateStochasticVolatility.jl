@@ -9,12 +9,14 @@ using PDMats: PDMat
 
 # Include scripts
 include("Hyperparameters.jl")
+include("Parameters.jl")
 include("Models.jl")
-include("Estimate.jl")
+include("Batch.jl")
+include("Online.jl")
 include("Simulate.jl")
 
 # Exported types
-export MvStochVol, Hyperparameters
+export MvStochVol, Hyperparameters, Parameters
 export MvNormal, MatrixNormal, MvTDist
 
 # Exported functions

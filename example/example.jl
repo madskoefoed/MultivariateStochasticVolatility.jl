@@ -1,6 +1,6 @@
 #using MultivariateStochasticVolatility
 
-T = 100_000
+T = 100_000;
 μ = [1, -2, 3, -4];
 Σ = MultivariateStochasticVolatility.Diagonal([2, 2, 1, 1]);
 y = MultivariateStochasticVolatility.simulate(T, μ, Σ);
@@ -13,11 +13,13 @@ m = ones(4);
 P = 10;
 S = MultivariateStochasticVolatility.Diagonal(ones(4) * 1000);
 
+param = MultivariateStochasticVolatility.Parameters(m, P, S, hyper);
+
 # Model
-model = MultivariateStochasticVolatility.MvStochVol(m, P, S, hyper);
+model_online = MultivariateStochasticVolatility.MvStochVolOnline(param);
 
 # Estimation
-MultivariateStochasticVolatility.estimate!(model, y);
+MultivariateStochasticVolatility.estimate!(model_online, y);
 
 # Batch model
-#batch = MultivariateStochasticVolatility.estimate(model, y)
+model_batch = MultivariateStochasticVolatility.MvStochVolBatch(param, y);
