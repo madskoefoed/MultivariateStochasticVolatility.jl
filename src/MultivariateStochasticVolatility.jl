@@ -1,6 +1,6 @@
 module MultivariateStochasticVolatility
 
-# Code based on Forecasting with time-varying vector autoregressive models (2008), K. Triantafyllopoulos
+# Code adapted from Forecasting with time-varying vector autoregressive models (2008), K. Triantafyllopoulos
 
 # Import
 using LinearAlgebra: diag, kron, I, cholesky, Diagonal, isposdef

@@ -20,6 +20,3 @@ model = MultivariateStochasticVolatility.MvStochVol(param);
 
 # Estimation
 MultivariateStochasticVolatility.estimate!(model, y);
-
-# Model with history
-model_history = MultivariateStochasticVolatility.MvStochVolHistory(param, 3);
