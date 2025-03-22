@@ -10,9 +10,9 @@ using PDMats: PDMat
 # Include scripts
 include("Hyperparameters.jl")
 include("Parameters.jl")
+include("Measurements.jl")
 include("Models.jl")
-include("Batch.jl")
-include("Online.jl")
+include("Estimation.jl")
 include("Simulate.jl")
 
 # Exported types
