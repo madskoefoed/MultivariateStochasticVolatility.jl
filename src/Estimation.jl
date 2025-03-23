@@ -9,6 +9,7 @@ end
 function estimate!(model::MvStochVol, y::AbstractVector)
     update!(model, y)   # Update at time t|t
     predict!(model)     # Predict at time t+1|t
+    performance!(model)
 
     return nothing
 end
@@ -19,7 +20,6 @@ function update!(model::MvStochVol, y::AbstractVector)
     model.measurements.y = y
     model.measurements.errors = y - model.parameters.μ
     model.measurements.scaled = invert_cholesky(model) * model.measurements.errors
-    model.loglik = model.loglik + get_logpdf(model)
 
     # Update at time t|t
     Q = model.parameters.P + 1
@@ -42,6 +42,21 @@ function predict!(model::MvStochVol)
     model.parameters.μ = model.parameters.m
     model.parameters.Σ = (model.parameters.P + 1) * (1 - model.parameters.hyper.β) / (3*model.parameters.hyper.β - 2) * model.parameters.S
 
+
+    return nothing
+end
+
+function performance!(model::MvStochVol)
+    a = 1/model.obs
+    b = 1 - a
+
+    #model.performance.loglikelihood = model.performance.loglikelihood * b + get_logpdf(model) * a
+    model.performance.loglikelihood += get_logpdf(model)
+
+    model.performance.mean_error = model.performance.mean_error * b + a * model.measurements.errors
+    model.performance.mean_absolute_error = model.performance.mean_absolute_error * b + a * abs.(model.measurements.errors)
+    model.performance.mean_squared_error = model.performance.mean_squared_error * b + a * model.measurements.errors .^2
+    model.performance.mean_squared_standardized_error = model.performance.mean_squared_standardized_error * b + a * model.measurements.scaled .^2
 
     return nothing
 end

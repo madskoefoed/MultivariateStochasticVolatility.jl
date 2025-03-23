@@ -10,8 +10,8 @@ hyper = MultivariateStochasticVolatility.Hyperparameters(0.95, 0.95);
 
 # Parameters
 m = ones(4);
-P = 10;
-S = MultivariateStochasticVolatility.Diagonal(ones(4) * 1000);
+P = 1000;
+S = MultivariateStochasticVolatility.Diagonal(ones(4));
 
 param = MultivariateStochasticVolatility.Parameters(m, P, S, hyper);
 

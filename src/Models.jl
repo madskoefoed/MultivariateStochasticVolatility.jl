@@ -1,8 +1,8 @@
 mutable struct MvStochVol
+    obs::Integer
     parameters::Parameters
     measurements::Measurements
-    loglik::Float64
-    obs::Integer
+    performance::Performance
 
-    MvStochVol(parameters::Parameters) = new(parameters, Measurements(parameters.p), 0.0, 0)
+    MvStochVol(parameters::Parameters) = new(0, parameters, Measurements(parameters.p), Performance(parameters.p))
 end

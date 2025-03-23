@@ -1,12 +1,9 @@
-function goodness_of_fit(model::MvStochVol)
-
-    denom = collect(size(model.e, 1))
-
-    ME = cumsum(model.e; dims = 1) ./ denom
-    MAE = cumsum(abs.(model.e); dims = 1) ./ denom
-    RMSE = sqrt.(cumsum(model.e.^2; dims = 1) ./ denom)
-    MSSE = cumsum(model.u.^2; dims = 1) ./ denom
-
-    return (ME = ME, MAE = MAE, RMSE = RMSE, MSSE = MSSE)
-
+mutable struct Performance
+    loglikelihood::Float64
+    mean_error::Vector{Float64}
+    mean_absolute_error::Vector{Float64}
+    mean_squared_error::Vector{Float64}
+    mean_squared_standardized_error::Vector{Float64}
 end
+
+Performance(p::Integer) = Performance(0.0, zeros(p), zeros(p), zeros(p), zeros(p))

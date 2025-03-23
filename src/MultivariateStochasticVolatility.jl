@@ -11,6 +11,7 @@ using PDMats: PDMat
 include("Hyperparameters.jl")
 include("Parameters.jl")
 include("Measurements.jl")
+include("Performance.jl")
 include("Models.jl")
 include("Estimation.jl")
 include("Simulate.jl")
