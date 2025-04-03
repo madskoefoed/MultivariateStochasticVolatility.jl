@@ -1,3 +1,14 @@
+function estimate(model::MvStochVol, y::AbstractMatrix)
+    print(model.parameters.m)
+    output = MvStochVol[model]
+    for t in axes(y, 1)
+        estimate!(model, y[t, :])
+        push!(output, deepcopy(model))
+    end
+
+    return output
+end
+
 function estimate!(model::MvStochVol, y::AbstractMatrix)
     for t in axes(y, 1)
         estimate!(model, y[t, :])   # Update at time t|t and predict at time t+1|t
@@ -27,7 +38,7 @@ function update!(model::MvStochVol, y::AbstractVector)
     
     model.parameters.m = model.parameters.m + K * model.measurements.errors
     model.parameters.P = model.parameters.P - (K * K') * Q
-    model.parameters.S = model.parameters.S + (model.measurements.errors*model.measurements.errors')/Q
+    model.parameters.S = model.parameters.S + (model.measurements.errors * model.measurements.errors')/Q
 
     model.obs += 1
 
@@ -51,12 +62,12 @@ function performance!(model::MvStochVol)
     b = 1 - a
 
     #model.performance.loglikelihood = model.performance.loglikelihood * b + get_logpdf(model) * a
-    model.performance.loglikelihood += get_logpdf(model)
+    model.performance.LL += get_logpdf(model)
 
-    model.performance.mean_error = model.performance.mean_error * b + a * model.measurements.errors
-    model.performance.mean_absolute_error = model.performance.mean_absolute_error * b + a * abs.(model.measurements.errors)
-    model.performance.mean_squared_error = model.performance.mean_squared_error * b + a * model.measurements.errors .^2
-    model.performance.mean_squared_standardized_error = model.performance.mean_squared_standardized_error * b + a * model.measurements.scaled .^2
+    model.performance.ME   = model.performance.ME * b + a * model.measurements.errors
+    model.performance.MAE  = model.performance.MAE * b + a * abs.(model.measurements.errors)
+    model.performance.MSE  = model.performance.MSE * b + a * model.measurements.errors .^2
+    model.performance.MSSE = model.performance.MSSE * b + a * model.measurements.scaled .^2
 
     return nothing
 end

@@ -6,10 +6,10 @@ T = 100_000;
 y = MultivariateStochasticVolatility.simulate(T, μ, Σ);
 
 # Hyperparameters
-hyper = MultivariateStochasticVolatility.Hyperparameters(0.95, 0.95);
+hyper = MultivariateStochasticVolatility.Hyperparameters(0.99, 0.9999);
 
 # Parameters
-m = ones(4);
+m = zeros(4);
 P = 1000;
 S = MultivariateStochasticVolatility.Diagonal(ones(4));
 
@@ -20,3 +20,6 @@ model = MultivariateStochasticVolatility.MvStochVol(param);
 
 # Estimation
 MultivariateStochasticVolatility.estimate!(model, y);
+
+model2 = MultivariateStochasticVolatility.MvStochVol(param);
+model2 = MultivariateStochasticVolatility.estimate(model2, y);

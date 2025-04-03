@@ -15,6 +15,7 @@ include("Performance.jl")
 include("Models.jl")
 include("Estimation.jl")
 include("Simulate.jl")
+include("Utils.jl")
 
 # Exported types
 export MvStochVol, Hyperparameters, Parameters
