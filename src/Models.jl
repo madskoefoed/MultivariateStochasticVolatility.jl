@@ -1,8 +1,19 @@
-mutable struct MvStochVol
-    obs::Integer
-    parameters::Parameters
-    measurements::Measurements
-    performance::Performance
+abstract type FilterModel end
+struct StochVolModel{T <: AbstractParameters} <: FilterModel
+    hyperparameters::Hyperparameters
+    parameters::Vector{T}
+    measurements::Vector{Measurements}
+    p::Integer
+    k::Float64
+    #performance::Performance
 
-    MvStochVol(parameters::Parameters) = new(0, parameters, Measurements(parameters.p), Performance(parameters.p))
+    function FilterModel{T}(hyperparameters::Hyperparameters,
+                            parameters::T) where {T <: AbstractParameters}
+
+        p = size(parameters.S, 1)
+        k = get_k(hyper, p)
+        parameters = Vector{T}[parameters]
+
+        new(hyperparameters, parameters, Measurements[], p, k)
+    end
 end
