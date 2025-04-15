@@ -1,4 +1,6 @@
-mutable struct Parameters
+abstract type AbstractParameters end
+
+mutable struct Parameters <: AbstractParameters
     m::Vector{Float64}
     P::Float64
     S::Matrix{Float64}
