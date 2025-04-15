@@ -2,9 +2,14 @@ abstract type AbstractStochVolFilter end
 
 mutable struct MvStochVolFilter <: AbstractStochVolFilter
     obs::Integer
+    priors::Priors
     parameters::Parameters
     measurements::Measurements
     performance::Performance
     
-    MvStochVolFilter(parameters::Parameters) = new(0, parameters, Measurements(parameters.p), Performance(parameters.p))
+    function MvStochVolFilter(priors::Priors, hp::Hyperparameters)
+        param = MultivariateStochasticVolatility.Parameters(priors, hp);
+
+        new(0, priors, param, Measurements(param.p), Performance(param.p))
+    end
 end

@@ -71,18 +71,18 @@ end
     P = 1000.0
     S = Diagonal(ones(p))
 
-    hyper  = Hyperparameters()
+    hp  = Hyperparameters()
     priors = Priors(m, P, S)
-    model  = MvStochVol(priors, hyper)
+    model  = MvStochVol(priors, hp)
     
     estimate!(model, y)
 
     @test model.observations == T
 
     ### BATCH ###
-    hyper  = Hyperparameters()
+    hp  = Hyperparameters()
     priors = Priors(m, P, S)
-    model  = MvStochVol(priors, hyper)
+    model  = MvStochVol(priors, hp)
     
     batch = estimate(model, y)
 end

@@ -49,11 +49,11 @@ end
 
 function predict!(model::MvStochVolFilter)
     # Predict at time t+1|t
-    model.parameters.P = model.parameters.P / model.parameters.hyper.δ
+    model.parameters.P = model.parameters.P / model.parameters.hp.δ
     model.parameters.S = model.parameters.S / model.parameters.k
 
     model.parameters.μ = model.parameters.m
-    model.parameters.Σ = (model.parameters.P + 1) * model.parameters.hyper.κ * model.parameters.S
+    model.parameters.Σ = (model.parameters.P + 1) * model.parameters.hp.κ * model.parameters.S
 
     return nothing
 end
@@ -72,7 +72,7 @@ function performance!(model::MvStochVolFilter)
 end
 
 function get_logpdf(model::MvStochVolFilter)
-    d = MvTDist(model.parameters.hyper.ν, model.parameters.μ, model.parameters.Σ)
+    d = MvTDist(model.parameters.hp.ν, model.parameters.μ, model.parameters.Σ)
     l = logpdf(d, model.measurements.y)
 
     return l
