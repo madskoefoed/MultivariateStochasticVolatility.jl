@@ -1,3 +1,12 @@
+function simulate(T::Integer, Φ::Real, Σ::Real)
+    @assert T > 0 "The number of observations, T, must be strictly positive."
+    @assert Σ > 0 "The variance, Σ, must be strictly positive."
+
+    y = rand(Normal(Φ, sqrt(Σ)), T)
+    
+    return y
+end
+
 function simulate(T::Integer, Φ::Vector{<:Real}, Σ::AbstractMatrix)
     @assert T > 0 "The number of observations must be strictly positive."
 

@@ -69,7 +69,7 @@ end
 
     hp  = Hyperparameters()
     priors = Priors(m, P, S)
-    model  = MvStochVolFilter(priors, hp)
+    model  = StochVolFilter(priors, hp)
     
     estimate!(model, y)
 
@@ -78,7 +78,7 @@ end
     ### BATCH ###
     hp  = Hyperparameters()
     priors = Priors(m, P, S)
-    model  = MvStochVolFilter(priors, hp)
+    model  = StochVolFilter(priors, hp)
     
     batch = estimate_batch!(model, y)
 end

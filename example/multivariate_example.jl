@@ -16,7 +16,7 @@ S = MultivariateStochasticVolatility.Diagonal(ones(4));
 priors = MultivariateStochasticVolatility.Priors(m, P, S);
 
 # Model
-model = MultivariateStochasticVolatility.MvStochVolFilter(priors, hp);
+model = MultivariateStochasticVolatility.StochVolFilter(priors, hp);
 
 # Estimation
 MultivariateStochasticVolatility.estimate!(model, y);

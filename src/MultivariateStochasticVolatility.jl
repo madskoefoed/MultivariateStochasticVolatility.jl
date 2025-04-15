@@ -4,7 +4,7 @@ module MultivariateStochasticVolatility
 
 # Import
 using LinearAlgebra: diag, kron, I, cholesky, Diagonal, isposdef, eigen
-using Distributions: Normal, MvNormal, MvTDist, MatrixNormal, logpdf
+using Distributions: Normal, TDist, MvNormal, MvTDist, MatrixNormal, logpdf
 using PDMats: PDMat
 
 # Include scripts
@@ -19,8 +19,8 @@ include("Simulate.jl")
 include("Utils.jl")
 
 # Exported types
-export MvStochVolFilter, Hyperparameters, Priors
-export MvNormal, MatrixNormal, MvTDist
+export StochVolFilter, Hyperparameters, Priors
+export MvNormal, MatrixNormal, MvTDist, TDist
 
 # Exported functions
 export estimate_batch!, estimate!
