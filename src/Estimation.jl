@@ -20,8 +20,8 @@ end
 
 function estimate!(model::MvStochVolFilter, y::AbstractVector)
     update!(model, y)   # Update at time t|t
+    performance!(model) # Calculate performance at time t|t
     predict!(model)     # Predict at time t+1|t
-    performance!(model)
 
     return nothing
 end
