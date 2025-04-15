@@ -9,6 +9,7 @@ using PDMats: PDMat
 
 # Include scripts
 include("Hyperparameters.jl")
+include("Priors.jl")
 include("Parameters.jl")
 include("Measurements.jl")
 include("Performance.jl")
@@ -18,11 +19,11 @@ include("Simulate.jl")
 include("Utils.jl")
 
 # Exported types
-export MvStochVolFilter, Hyperparameters, Parameters
+export MvStochVolFilter, Hyperparameters, Priors
 export MvNormal, MatrixNormal, MvTDist
 
 # Exported functions
-export estimate, estimate!
+export estimate_batch!, estimate!
 export simulate
 
 end

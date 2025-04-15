@@ -1,4 +1,4 @@
-using MultivariateStochasticVolatility
+#using MultivariateStochasticVolatility
 
 T = 100_000;
 μ = [1, -2, 3, -4];
@@ -15,8 +15,6 @@ S = MultivariateStochasticVolatility.Diagonal(ones(4));
 
 priors = MultivariateStochasticVolatility.Priors(m, P, S);
 
-#param = MultivariateStochasticVolatility.Parameters(priors, hp);
-
 # Model
 model = MultivariateStochasticVolatility.MvStochVolFilter(priors, hp);
 
@@ -24,4 +22,10 @@ model = MultivariateStochasticVolatility.MvStochVolFilter(priors, hp);
 MultivariateStochasticVolatility.estimate!(model, y);
 
 # Estimation with history
-history = MultivariateStochasticVolatility.estimate_history!(model, y);
+batch = MultivariateStochasticVolatility.estimate_batch!(model, y);
+
+# Get parameters
+MultivariateStochasticVolatility.get_parameters(model)
+
+# Get predictions
+MultivariateStochasticVolatility.get_predictions(model)

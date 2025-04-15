@@ -1,4 +1,6 @@
-function get_parameters(model::Vector{MvStochVolFilter}, )
+get_parameters(model::MvStochVolFilter) = (model.parameters.m, model.parameters.P, model.parameters.S)
+
+function get_parameters(model::Vector{MvStochVolFilter})
     @assert !isempty(model) "The vector 'model' cannot be empty."
 
     T = length(model)
@@ -12,10 +14,12 @@ function get_parameters(model::Vector{MvStochVolFilter}, )
         S[t, :, :] = model[t].parameters.S
     end
 
-    return m, P, S
+    return (m, P, S)
 end
 
-function get_predictions(model::Vector{MvStochVolFilter}, )
+get_predictions(model::MvStochVolFilter) = (model.parameters.μ, model.parameters.Σ)
+
+function get_predictions(model::Vector{MvStochVolFilter})
     @assert !isempty(model) "The vector 'model' cannot be empty."
 
     T = length(model)
@@ -27,5 +31,5 @@ function get_predictions(model::Vector{MvStochVolFilter}, )
         Σ[t, :, :] = model[t].parameters.Σ
     end
 
-    return μ, Σ
+    return (μ, Σ)
 end

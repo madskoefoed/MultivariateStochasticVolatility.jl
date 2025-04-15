@@ -9,38 +9,34 @@ using LinearAlgebra
     h = Hyperparameters()
     @test isapprox(h.β, 0.99)
     @test isapprox(h.δ, 0.99)
+    @test isapprox(h.ν, h.β/(1 - h.β))
+    @test isapprox(h.κ, (1 - h.β) / (3*h.β - 2))
 
     h = Hyperparameters(0.8, 0.9)
     @test isapprox(h.β, 0.8)
     @test isapprox(h.δ, 0.9)
+    @test isapprox(h.ν, h.β/(1 - h.β))
+    @test isapprox(h.κ, (1 - h.β) / (3*h.β - 2))
 end
 
 ##################
 ### Parameters ###
 ##################
-@testset "Parameters" begin
+@testset "Priors" begin
     p = 2
     m = [-1, 5]
-    R = 999.9
     P = 999.9
     S = [10 0;
           0 1]
-    param = Priors(m, R, S)
-    @test length(param.m) == p
-    @test length(param.R) == 1
-    @test size(param.S, 1) == size(param.S, 2)
-    @test param.S[1, 1] == 10
-    @test param.m[1] == -1
-    @test sum(param.m) == 4
-    @test isapprox(param.R, R)
-    param = Posteriors(m, P, S)
-    @test length(param.m) == p
-    @test length(param.P) == 1
-    @test size(param.S, 1) == size(param.S, 2)
-    @test param.S[1, 1] == 10
-    @test param.m[1] == -1
-    @test sum(param.m) == 4
-    @test isapprox(param.P, P)
+
+    priors = Priors(m, P, S)
+    @test length(priors.m) == p
+    @test length(priors.P) == 1
+    @test size(priors.S, 1) == size(priors.S, 2)
+    @test priors.S[1, 1] == 10
+    @test priors.m[1] == -1
+    @test sum(priors.m) == 4
+    @test isapprox(priors.P, P)
 end
 
 ################
@@ -73,17 +69,17 @@ end
 
     hp  = Hyperparameters()
     priors = Priors(m, P, S)
-    model  = MvStochVol(priors, hp)
+    model  = MvStochVolFilter(priors, hp)
     
     estimate!(model, y)
 
-    @test model.observations == T
+    @test model.obs == T
 
     ### BATCH ###
     hp  = Hyperparameters()
     priors = Priors(m, P, S)
-    model  = MvStochVol(priors, hp)
+    model  = MvStochVolFilter(priors, hp)
     
-    batch = estimate(model, y)
+    batch = estimate_batch!(model, y)
 end
 

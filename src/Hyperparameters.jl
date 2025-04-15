@@ -7,8 +7,7 @@ struct Hyperparameters
     function Hyperparameters(β::AbstractFloat, δ::AbstractFloat)
         (δ > 0   && δ <= 1) || throw(ArgumentError("0 < δ ≤ 1 required (currently $δ)."))
         (β > 2/3 && β  < 1) || throw(ArgumentError("$(2//3) < β < 1 required (currently $β)."))
-        n = 1/(1 - β)
-        ν = n * β
+        ν = β/(1 - β)
         κ = (1 - β) / (3β - 2)
         
         return new(β, δ, ν, κ)

@@ -1,4 +1,4 @@
-function estimate_history!(model::MvStochVolFilter, y::AbstractMatrix)
+function estimate_batch!(model::MvStochVolFilter, y::AbstractMatrix)
     models = MvStochVolFilter[]
 
     for t in axes(y, 1)
