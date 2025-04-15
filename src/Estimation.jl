@@ -1,5 +1,5 @@
-function estimate_history!(model::MvStochVol, y::AbstractMatrix)
-    models = MvStochVol[]
+function estimate_history!(model::MvStochVolFilter, y::AbstractMatrix)
+    models = MvStochVolFilter[]
 
     for t in axes(y, 1)
         estimate!(model, y[t, :])
@@ -10,7 +10,7 @@ function estimate_history!(model::MvStochVol, y::AbstractMatrix)
 end
 
 
-function estimate!(model::MvStochVol, y::AbstractMatrix)
+function estimate!(model::MvStochVolFilter, y::AbstractMatrix)
     for t in axes(y, 1)
         estimate!(model, y[t, :])   # Update at time t|t and predict at time t+1|t
     end
@@ -18,7 +18,7 @@ function estimate!(model::MvStochVol, y::AbstractMatrix)
     return nothing
 end
 
-function estimate!(model::MvStochVol, y::AbstractVector)
+function estimate!(model::MvStochVolFilter, y::AbstractVector)
     update!(model, y)   # Update at time t|t
     predict!(model)     # Predict at time t+1|t
     performance!(model)
@@ -26,7 +26,7 @@ function estimate!(model::MvStochVol, y::AbstractVector)
     return nothing
 end
 
-function update!(model::MvStochVol, y::AbstractVector)
+function update!(model::MvStochVolFilter, y::AbstractVector)
     @assert length(y) == model.parameters.p "The measurement vector 'y' must have $(model.parameters.p) elements, but has $(length(y))"
     
     model.measurements.y      = y
@@ -47,7 +47,7 @@ function update!(model::MvStochVol, y::AbstractVector)
     return nothing
 end
 
-function predict!(model::MvStochVol)
+function predict!(model::MvStochVolFilter)
     # Predict at time t+1|t
     model.parameters.P = model.parameters.P / model.parameters.hyper.δ
     model.parameters.S = model.parameters.S / model.parameters.k
@@ -58,7 +58,7 @@ function predict!(model::MvStochVol)
     return nothing
 end
 
-function performance!(model::MvStochVol)
+function performance!(model::MvStochVolFilter)
     a = 1/model.obs
     b = 1 - a
 
@@ -71,15 +71,15 @@ function performance!(model::MvStochVol)
     return nothing
 end
 
-function get_logpdf(model::MvStochVol)
+function get_logpdf(model::MvStochVolFilter)
     d = MvTDist(model.parameters.hyper.ν, model.parameters.μ, model.parameters.Σ)
     l = logpdf(d, model.measurements.y)
 
     return l
 end
 
-invert_cholesky(parameters::Parameters) = inv(cholesky(parameters.Σ))
-invert_cholesky(model::MvStochVol)      = inv(cholesky(model.parameters))
+invert_cholesky(parameters::Parameters)  = inv(cholesky(parameters.Σ))
+invert_cholesky(model::MvStochVolFilter) = inv(cholesky(model.parameters))
 
 scaled_error(parameters::Parameters, measurements::Measurements) = invert_cholesky(parameters)' * measurements.errors
-scaled_error(model::MvStochVol) = scaled_error(model.parameters, model.measurements)
+scaled_error(model::MvStochVolFilter) = scaled_error(model.parameters, model.measurements)

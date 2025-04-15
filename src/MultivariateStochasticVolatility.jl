@@ -18,7 +18,7 @@ include("Simulate.jl")
 include("Utils.jl")
 
 # Exported types
-export MvStochVol, Hyperparameters, Parameters
+export MvStochVolFilter, Hyperparameters, Parameters
 export MvNormal, MatrixNormal, MvTDist
 
 # Exported functions

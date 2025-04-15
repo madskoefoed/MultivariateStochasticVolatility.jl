@@ -1,4 +1,4 @@
-function get_parameters(model::Vector{MvStochVol}, )
+function get_parameters(model::Vector{MvStochVolFilter}, )
     @assert !isempty(model) "The vector 'model' cannot be empty."
 
     T = length(model)
@@ -15,7 +15,7 @@ function get_parameters(model::Vector{MvStochVol}, )
     return m, P, S
 end
 
-function get_predictions(model::Vector{MvStochVol}, )
+function get_predictions(model::Vector{MvStochVolFilter}, )
     @assert !isempty(model) "The vector 'model' cannot be empty."
 
     T = length(model)

@@ -13,13 +13,34 @@ m = zeros(4);
 P = 1000;
 S = MultivariateStochasticVolatility.Diagonal(ones(4));
 
-param = MultivariateStochasticVolatility.Parameters(m, P, S, hyper);
+prior = MultivariateStochasticVolatility.Priors(m, P, S)
+
+param = MultivariateStochasticVolatility.Parameters(prior, hyper);
 
 # Model
-model = MultivariateStochasticVolatility.MvStochVol(param);
+model = MultivariateStochasticVolatility.MvStochVolFilter(param);
 
 # Estimation
 MultivariateStochasticVolatility.estimate!(model, y);
+
+# Estimation with history
+history = MultivariateStochasticVolatility.estimate_history!(model, y);
+
+
+# Parameters
+m = zeros(1);
+P = 1000;
+S = MultivariateStochasticVolatility.Diagonal(ones(1));
+
+prior = MultivariateStochasticVolatility.Priors(m, P, S)
+
+param = MultivariateStochasticVolatility.Parameters(prior, hyper);
+
+# Model
+model = MultivariateStochasticVolatility.MvStochVolFilter(param);
+
+# Estimation
+MultivariateStochasticVolatility.estimate!(model, y[:,1:1]);
 
 # Estimation with history
 history = MultivariateStochasticVolatility.estimate_history!(model, y);
