@@ -1,12 +1,12 @@
 function estimate_batch!(model::MvStochVolFilter, y::AbstractMatrix)
-    models = MvStochVolFilter[]
+    batch = MvStochVolFilter[]
 
     for t in axes(y, 1)
         estimate!(model, y[t, :])
-        push!(models, deepcopy(model))
+        push!(batch, deepcopy(model))
     end
 
-    return models
+    return batch
 end
 
 
