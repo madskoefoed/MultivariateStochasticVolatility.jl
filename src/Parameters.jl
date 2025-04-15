@@ -30,7 +30,7 @@ mutable struct Parameters
         P = P / hyper.δ
         S = S / k
 
-        Σ = (P + 1) * (1 - hyper.β) / (3*hyper.β - 2) * S
+        Σ = (P + 1) * hyper.κ * S
 
         new(m, P, S, deepcopy(m), Σ, hyper, p, k)
     end
