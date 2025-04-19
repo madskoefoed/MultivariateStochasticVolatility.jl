@@ -1,32 +1,26 @@
 abstract type AbstractFilter end
 
-mutable struct UnivariateStochVolFilter <: AbstractFilter
+mutable struct Filter <: AbstractFilter
     obs::Integer
-    priors::UnivariatePriors
-    parameters::UnivariateParameters
-    measurements::UnivariateMeasurements
-    performance::UnivariatePerformance
+    parameters::AbstractParameters
+    μ::Vector{Float64}
+    Σ::Matrix{Float64}
+    y::Vector{Float64}
+    errors::Vector{Float64}
+    scaled::Vector{Float64}
+    performance::Performance
     
-    function UnivariateStochVolFilter(priors::UnivariatePriors, hp::Hyperparameters)
-        p = size(priors.S, 1)
-        param = MultivariateStochasticVolatility.UnivariateParameters(priors, hp);
+    function Filter(param::PARAM) where {PARAM <: AbstractParameters}
 
-        new(0, priors, param, UnivariateMeasurements(), UnivariatePerformance())
-    end
-end
+        p = size(param.S, 1)
 
-mutable struct MultivariateStochVolFilter <: AbstractFilter
-    obs::Integer
-    priors::MultivariatePriors
-    parameters::MultivariateParameters
-    measurements::MultivariateMeasurements
-    performance::MultivariatePerformance
-    
-    function MultivariateStochVolFilter(priors::MultivariatePriors, hp::Hyperparameters)
-        p = size(priors.S, 1)
-        param = MultivariateStochasticVolatility.MultivariateParameters(priors, hp);
+        m, P, S, μ, Σ = predict(param)
 
-        new(0, priors, param, MultivariateMeasurements(p), MultivariatePerformance(p))
+        perf = Performance(p)
+
+        print(typeof(Σ))
+
+        new(0, param, μ, Σ, zeros(p), zeros(p), zeros(p), perf)
     end
 end
 
@@ -34,5 +28,4 @@ end
 ### Outer constructors ###
 ##########################
 
-StochVolFilter(priors::UnivariatePriors, hp::Hyperparameters)   = UnivariateStochVolFilter(priors, hp)
-StochVolFilter(priors::MultivariatePriors, hp::Hyperparameters) = MultivariateStochVolFilter(priors, hp)
+#Filter(priors::MultivariatePriors, hyper::Hyperparameters) = MultivariateFilter(priors, hyper)

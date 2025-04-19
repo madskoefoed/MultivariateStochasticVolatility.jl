@@ -9,9 +9,7 @@ using PDMats: PDMat
 
 # Include scripts
 include("Hyperparameters.jl")
-include("Priors.jl")
 include("Parameters.jl")
-include("Measurements.jl")
 include("Performance.jl")
 include("Models.jl")
 include("Estimation.jl")
@@ -19,7 +17,8 @@ include("Simulate.jl")
 include("Utils.jl")
 
 # Exported types
-export StochVolFilter, Hyperparameters, Priors
+export Filter, Hyperparameters
+export MeanParameters
 export MvNormal, MatrixNormal, MvTDist, TDist
 
 # Exported functions

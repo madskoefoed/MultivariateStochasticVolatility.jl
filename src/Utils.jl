@@ -1,6 +1,6 @@
 get_parameters(model::AbstractFilter) = (model.parameters.m, model.parameters.P, model.parameters.S)
 
-function get_parameters(model::Vector{MultivariateStochVolFilter})
+function get_parameters(model::Vector{Filter})
     @assert !isempty(model) "The vector 'model' cannot be empty."
 
     T = length(model)
@@ -17,9 +17,9 @@ function get_parameters(model::Vector{MultivariateStochVolFilter})
     return (m, P, S)
 end
 
-get_predictions(model::AbstractFilter) = (model.parameters.μ, model.parameters.Σ)
+get_predictions(model::AbstractFilter) = (model.μ, model.Σ)
 
-function get_predictions(model::Vector{MultivariateStochVolFilter})
+function get_predictions(model::Vector{Filter})
     @assert !isempty(model) "The vector 'model' cannot be empty."
 
     T = length(model)
@@ -27,8 +27,8 @@ function get_predictions(model::Vector{MultivariateStochVolFilter})
     μ = zeros(T, p)
     Σ = zeros(T, p, p)
     for t in eachindex(model)
-        μ[t, :]    = model[t].parameters.μ
-        Σ[t, :, :] = model[t].parameters.Σ
+        μ[t, :]    = model[t].μ
+        Σ[t, :, :] = model[t].Σ
     end
 
     return (μ, Σ)

@@ -6,9 +6,9 @@ using LinearAlgebra
 ### Hyperparameters ###
 #######################
 @testset "Hyperparameters" begin
-    h = Hyperparameters()
-    @test isapprox(h.β, 0.99)
-    @test isapprox(h.δ, 0.99)
+    h = Hyperparameters(0.999, 0.2)
+    @test isapprox(h.β, 0.999)
+    @test isapprox(h.δ, 0.2)
     @test isapprox(h.ν, h.β/(1 - h.β))
     @test isapprox(h.κ, (1 - h.β) / (3*h.β - 2))
 
@@ -22,21 +22,22 @@ end
 ##################
 ### Parameters ###
 ##################
-@testset "Priors" begin
-    p = 2
+@testset "Parameters" begin
     m = [-1, 5]
     P = 999.9
     S = [10 0;
           0 1]
+    p = length(m)
 
-    priors = Priors(m, P, S)
-    @test length(priors.m) == p
-    @test length(priors.P) == 1
-    @test size(priors.S, 1) == size(priors.S, 2)
-    @test priors.S[1, 1] == 10
-    @test priors.m[1] == -1
-    @test sum(priors.m) == 4
-    @test isapprox(priors.P, P)
+    h = Hyperparameters(0.8, 0.9)
+    param = MeanParameters(m, P, S, h)
+    @test length(param.m) == p
+    @test length(param.P) == 1
+    @test size(param.S, 1) == size(param.S, 2)
+    @test param.S[1, 1] == 10
+    @test param.m[1] == -1
+    @test sum(param.m) == 4
+    @test isapprox(param.P, P)
 end
 
 ################
@@ -56,7 +57,7 @@ end
 ################
 ### Estimate ###
 ################
-@testset "Estimate" begin
+@testset "Online estimation" begin
     ### ONLINE ###
     T = 50
     p = 3
@@ -67,18 +68,29 @@ end
     P = 1000.0
     S = Diagonal(ones(p))
 
-    hp  = Hyperparameters()
-    priors = Priors(m, P, S)
-    model  = StochVolFilter(priors, hp)
+    hyper = Hyperparameters(0.9, 0.9)
+    param = MeanParameters(m, P, S, hyper)
+    model = Filter(param)
     
     estimate!(model, y)
 
     @test model.obs == T
+end
 
+@testset "Batch estimation" begin
     ### BATCH ###
-    hp  = Hyperparameters()
-    priors = Priors(m, P, S)
-    model  = StochVolFilter(priors, hp)
+    T = 50
+    p = 3
+    Φ = collect(p:-1:1)
+    Σ = Diagonal(collect(1:p))
+    y = simulate(T, Φ, Σ)
+    m = zeros(p)
+    P = 1000.0
+    S = Diagonal(ones(p))
+    
+    hyper = Hyperparameters(0.99, 0.99)
+    param = MeanParameters(m, P, S, hyper)
+    model = Filter(param)
     
     batch = estimate_batch!(model, y)
 end
