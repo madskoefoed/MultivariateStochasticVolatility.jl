@@ -11,7 +11,7 @@ m = zeros(4);
 P = 1000;
 S = MultivariateStochasticVolatility.Diagonal(ones(4));
 
-param = MultivariateStochasticVolatility.MeanParameters(m, P, S, hyper);
+param = MultivariateStochasticVolatility.Parameters(m, P, S, hyper);
 
 # Model
 model = MultivariateStochasticVolatility.Filter(param);

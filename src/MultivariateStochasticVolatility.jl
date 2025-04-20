@@ -17,7 +17,7 @@ include("Utils.jl")
 
 # Exported types
 export Filter, Hyperparameters
-export MeanParameters
+export Parameters
 export MatrixNormal, MvTDist
 
 # Exported functions

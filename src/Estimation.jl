@@ -74,7 +74,7 @@ function predict!(model::Filter)
     return nothing
 end
 
-function predict(param::MeanParameters)
+function predict(param::Parameters)
     # Predict at time t+1|t
     m = deepcopy(param.m)
     P = param.P / param.hyper.δ

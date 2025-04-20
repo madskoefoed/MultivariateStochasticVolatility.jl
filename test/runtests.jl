@@ -30,7 +30,7 @@ end
     p = length(m)
 
     h = Hyperparameters(0.8, 0.9)
-    param = MeanParameters(m, P, S, h)
+    param = Parameters(m, P, S, h)
     @test length(param.m) == p
     @test length(param.P) == 1
     @test size(param.S, 1) == size(param.S, 2)
@@ -40,7 +40,7 @@ end
     @test isapprox(param.P, P)
 
     # Test weak priors
-    param = MeanParameters(p, h)
+    param = Parameters(p, h)
     @test length(param.m) == p
     @test length(param.P) == 1
     @test size(param.S, 1) == size(param.S, 2)
@@ -79,7 +79,7 @@ end
     S = [i == j ? 1.0 : 0.0 for i in 1:p, j in 1:p]
 
     hyper = Hyperparameters(0.9, 0.9)
-    param = MeanParameters(m, P, S, hyper)
+    param = Parameters(m, P, S, hyper)
     model = Filter(param)
     
     estimate!(model, y)
@@ -100,7 +100,7 @@ end
     S = [i == j ? 1.0 : 0.0 for i in 1:p, j in 1:p]
 
     hyper = Hyperparameters(0.99, 0.99)
-    param = MeanParameters(m, P, S, hyper)
+    param = Parameters(m, P, S, hyper)
     model = Filter(param)
     
     batch = batch!(model, y)
