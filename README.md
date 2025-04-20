@@ -1,8 +1,7 @@
 # Multivariate Stochastic Volatility Model
 
-[![Coverage](https://codecov.io/gh/madskoefoed/MultivariateStochasticVolatility.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/madskoefoed/MultivariateStochasticVolatility.jl)
-[![Coverage](https://coveralls.io/repos/github/madskoefoed/MultivariateStochasticVolatility.jl/badge.svg?branch=master)](https://coveralls.io/github/madskoefoed/MultivariateStochasticVolatility.jl?branch=master)
-
+[![Build status (Github Actions)](https://github.com/MadsKoefoed/MultivariateStochasticVolatility.jl/workflows/CI/badge.svg)](https://github.com/MadsKoefoed/MultivariateStochasticVolatility.jl/actions)
+[![codecov.io](http://codecov.io/github/MadsKoefoed/MultivariateStochasticVolatility.jl/coverage.svg?branch=main)](http://codecov.io/github/MadsKoefoed/MultivariateStochasticVolatility.jl?branch=main)
 
 The package estimates a multivariate stochastic volatility model (MVSV) by casting it into a state-space model. The volatility is assumed to follow a random walk. The package is based on the paper _Forecasting with time-varying vector autoregressive models, K. Triantafyllopoulus (2008)_.
 
