@@ -87,11 +87,11 @@ end
     m = zeros(p)
     P = 1000.0
     S = Diagonal(ones(p))
-    
+
     hyper = Hyperparameters(0.99, 0.99)
     param = MeanParameters(m, P, S, hyper)
     model = Filter(param)
     
-    batch = estimate_batch!(model, y)
+    batch = batch!(model, y)
 end
 
