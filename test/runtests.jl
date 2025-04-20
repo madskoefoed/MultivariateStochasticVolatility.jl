@@ -55,7 +55,7 @@ end
 @testset "Simulate" begin
     T = 50
     p = 3
-    Φ = collect(p:-1:1)
+    Φ = [1, -2, 3]
     Σ = [i == j ? 1.0 : 0.0 for i in 1:p, j in 1:p]
     y = simulate(T, Φ, Σ)
 
@@ -104,5 +104,9 @@ end
     model = Filter(param)
     
     batch = batch!(model, y)
+
+    @test batch[1].obs == 1
+    @test batch[T].obs == T
+    @test sum([batch[b].obs for b in eachindex(batch)]) == sum(1:T)
 end
 

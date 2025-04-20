@@ -24,13 +24,15 @@ function simulate(T::Integer, Φ::Vector{<:Real}, Σ::AbstractMatrix)
     return y
 end
 
-# Quick simulation
-function simulation()
-    T = 1_000
-    Φ = [-1, 2, -3]
-    Σ = Diagonal([3, 2, 1])
+function simulate(T::Integer, p::Integer)
+    @assert T > 0 "The number of observations must be strictly positive."
+    @assert p > 0 "The number of time series must be strictly positive."
 
-    y = simulate(T, Φ, Σ)
+    if p == 1
+        y = simulate(T, 0, 1)
+    else
+        y = simulate(T, zeros(p), [i == j ? 1 : 0 for i = 1:p, j = 1:p])
+    end
 
     return y
 end
