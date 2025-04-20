@@ -1,5 +1,11 @@
-### Batch estimation ###
-function estimate_batch!(model::Filter, y::AbstractMatrix)
+"""
+    batch!(model::Filter, y::AbstractMatrix)
+
+Estimate a filter model to all the data in batch mode where `y` is expected to be a multivariate variable
+with observations along the first axis. Batch mode implies that `model` is updated for t=1,...,T while
+a vector `Vector{Filter}` is returned.
+"""
+function batch!(model::Filter, y::AbstractMatrix{<:Real})
     batch = Filter[]
 
     for t in axes(y, 1)
@@ -10,17 +16,16 @@ function estimate_batch!(model::Filter, y::AbstractMatrix)
     return batch
 end
 
-### Online estimation ###
-function estimate!(model::Filter, y::AbstractMatrix)
-    for t in axes(y, 1)
-        estimate!(model, y[t, :])   # Update at time t|t and predict at time t+1|t
-    end
+"""
+    estimate!(model::Filter, y::AbstractVector)
+    estimate!(model::Filter, y::AbstractMatrix)
+    
+Estimate a filter model for either a single data point or multiple data points.
 
-    return nothing
-end
-
-### Online estimation - single observation ###
-function estimate!(model::Filter, y::AbstractVector)
+In the first method, `y` corresponds to a single observation.
+In the second method, `y` corresponds to multiple observations.
+"""
+function estimate!(model::Filter, y::AbstractVector{<:Real})
     update!(model, y)   # Update at time t|t
     performance!(model) # Calculate performance at time t|t
     predict!(model)     # Predict at time t+1|t
@@ -28,8 +33,16 @@ function estimate!(model::Filter, y::AbstractVector)
     return nothing
 end
 
+function estimate!(model::Filter, y::AbstractMatrix{<:Real})
+    for t in axes(y, 1)
+        estimate!(model, y[t, :])   # Update at time t|t and predict at time t+1|t
+    end
+
+    return nothing
+end
+
 ### Update ###
-function update!(model::Filter, y::AbstractVector)
+function update!(model::Filter, y::AbstractVector{<:Real})
     @assert length(y) == model.parameters.p "The measurement vector 'y' must have $(model.parameters.p) elements, but has $(length(y))"
     
     model.y      = y

@@ -1,5 +1,27 @@
+"""
+    AbstractFilter
+
+Abstract type representing a filter
+"""
 abstract type AbstractFilter end
 
+"""
+    Filter
+
+A mutable struct, Filter, which contains the updated filter information at time t.
+The filter is initialized at time t=0 by supplying an `AbstractParameters` struct.
+
+# Members
+
+- `obs`: number of updates (time steps) performed up to and including time t
+- `parameters`: a struct with parameters
+- `μ`: vector of mean predictions
+- `Σ`: a covariance matrix of predictions
+- `y`: a vector of measurements at time t
+- `errors`: a vector of errors at time t
+- `scaled`: a vector of standardized errors at time t
+- `performance`: a mutable struct, performance, with model performance data
+"""
 mutable struct Filter <: AbstractFilter
     obs::Integer
     parameters::AbstractParameters
@@ -23,9 +45,3 @@ mutable struct Filter <: AbstractFilter
         new(0, param, μ, Σ, zeros(p), zeros(p), zeros(p), perf)
     end
 end
-
-##########################
-### Outer constructors ###
-##########################
-
-#Filter(priors::MultivariatePriors, hyper::Hyperparameters) = MultivariateFilter(priors, hyper)
