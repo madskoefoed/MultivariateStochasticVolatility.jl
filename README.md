@@ -1,6 +1,6 @@
 # Multivariate Stochastic Volatility Model
 
-[![Coverage](https://codecov.io/gh/madskoefoed/MultivariateStochasticVolatility.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/madskoefoed/TVVAR.jl)
+[![Coverage](https://codecov.io/gh/madskoefoed/MultivariateStochasticVolatility.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/madskoefoed/MultivariateStochasticVolatility.jl)
 [![Coverage](https://coveralls.io/repos/github/madskoefoed/MultivariateStochasticVolatility.jl/badge.svg?branch=master)](https://coveralls.io/github/madskoefoed/MultivariateStochasticVolatility.jl?branch=master)
 
 
