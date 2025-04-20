@@ -1,6 +1,6 @@
 using MultivariateStochasticVolatility
 using Test
-using LinearAlgebra
+#using LinearAlgebra
 
 #######################
 ### Hyperparameters ###
@@ -47,7 +47,7 @@ end
     T = 50
     p = 3
     Φ = collect(p:-1:1)
-    Σ = Diagonal(collect(1:p))
+    Σ = [i == j ? 1.0 : 0.0 for i in 1:p, j in 1:p]
     y = simulate(T, Φ, Σ)
 
     @test size(y, 1) == T
@@ -58,15 +58,16 @@ end
 ### Estimate ###
 ################
 @testset "Online estimation" begin
-    ### ONLINE ###
     T = 50
     p = 3
     Φ = collect(p:-1:1)
-    Σ = Diagonal(collect(1:p))
+    Σ = [i == j ? 1.0 : 0.0 for i in 1:p, j in 1:p]
     y = simulate(T, Φ, Σ)
+
+    # Parameters
     m = zeros(p)
     P = 1000.0
-    S = Diagonal(ones(p))
+    S = [i == j ? 1.0 : 0.0 for i in 1:p, j in 1:p]
 
     hyper = Hyperparameters(0.9, 0.9)
     param = MeanParameters(m, P, S, hyper)
@@ -78,15 +79,16 @@ end
 end
 
 @testset "Batch estimation" begin
-    ### BATCH ###
     T = 50
     p = 3
     Φ = collect(p:-1:1)
-    Σ = Diagonal(collect(1:p))
+    Σ = [i == j ? 1.0 : 0.0 for i in 1:p, j in 1:p]
     y = simulate(T, Φ, Σ)
+
+    # Parameters
     m = zeros(p)
     P = 1000.0
-    S = Diagonal(ones(p))
+    S = [i == j ? 1.0 : 0.0 for i in 1:p, j in 1:p]
 
     hyper = Hyperparameters(0.99, 0.99)
     param = MeanParameters(m, P, S, hyper)
