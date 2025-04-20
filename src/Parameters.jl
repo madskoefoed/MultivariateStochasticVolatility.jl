@@ -30,3 +30,15 @@ mutable struct MeanParameters <: AbstractParameters
         new(m, P, S, hyper, p, k)
     end
 end
+
+##########################
+### Outer constructors ###
+##########################
+
+function MeanParameters(p::Integer, hyper::Hyperparameters)
+    m = zeros(p)
+    P = 1e6
+    S = [i == j ? 1 : 0 for i in 1:p, j = 1:p]
+
+    return MeanParameters(m, P, S, hyper)
+end

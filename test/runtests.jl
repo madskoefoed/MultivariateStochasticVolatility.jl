@@ -38,6 +38,15 @@ end
     @test param.m[1] == -1
     @test sum(param.m) == 4
     @test isapprox(param.P, P)
+
+    # Test weak priors
+    param = MeanParameters(p, h)
+    @test length(param.m) == p
+    @test length(param.P) == 1
+    @test size(param.S, 1) == size(param.S, 2)
+    @test sum(param.m) == 0
+    @test param.P == 1e6
+    @test sum(param.S[i, i] for i in 1:p) == p
 end
 
 ################
