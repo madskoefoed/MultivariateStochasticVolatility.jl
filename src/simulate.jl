@@ -1,3 +1,14 @@
+"""
+    simulate(T::Integer, Φ::Real, Σ::Real)
+    simulate(T::Integer, Φ::Vector{<:Real}, Σ::AbstractMatrix)
+    simulate(T::Integer, p::Integer)
+
+Simulate a univarate or multivariate time series.
+
+In the first method, a univariate time series is simulated.
+In the second method, a multivariate time series is simulated.
+In the third method, a p-variate time series with zero-mean and unit variance is simulated.
+"""
 function simulate(T::Integer, Φ::Real, Σ::Real)
     @assert T > 0 "The number of observations, T, must be strictly positive."
     @assert Σ > 0 "The variance, Σ, must be strictly positive."
