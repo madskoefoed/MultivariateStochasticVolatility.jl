@@ -9,7 +9,6 @@ using Distributions: Normal, MvNormal, MvTDist, logpdf
 # Include scripts
 include("Hyperparameters.jl")
 include("Parameters.jl")
-include("Performance.jl")
 include("Models.jl")
 include("Estimation.jl")
 include("Simulate.jl")

@@ -27,7 +27,7 @@ In the second method, `y` corresponds to multiple observations.
 """
 function estimate!(model::Filter, y::AbstractVector{<:Real})
     update!(model, y)   # Update at time t|t
-    performance!(model) # Calculate performance at time t|t
+    #performance!(model) # Calculate performance at time t|t
     predict!(model)     # Predict at time t+1|t
 
     return nothing
@@ -87,18 +87,18 @@ function predict(param::Parameters)
 end
 
 ### FilterPerformance ###
-function performance!(model::AbstractFilter)
-    a = 1/model.obs
-    b = 1 - a
+#function performance!(model::AbstractFilter)
+#    a = 1/model.obs
+#    b = 1 - a
 
-    model.performance.LL   = model.performance.LL   * b + a * get_logpdf(model)
-    model.performance.ME   = model.performance.ME   * b + a * model.errors
-    model.performance.MAE  = model.performance.MAE  * b + a * abs.(model.errors)
-    model.performance.MSE  = model.performance.MSE  * b + a * model.errors .^2
-    model.performance.MSSE = model.performance.MSSE * b + a * model.scaled .^2
+#    model.performance.LL   = model.performance.LL   * b + a * get_logpdf(model)
+#    model.performance.ME   = model.performance.ME   * b + a * model.errors
+#    model.performance.MAE  = model.performance.MAE  * b + a * abs.(model.errors)
+#    model.performance.MSE  = model.performance.MSE  * b + a * model.errors .^2
+#    model.performance.MSSE = model.performance.MSSE * b + a * model.scaled .^2
 
-    return nothing
-end
+#    return nothing
+#end
 
 ### Log-likelihood
 function get_logpdf(model::Filter)
