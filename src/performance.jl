@@ -1,6 +1,6 @@
 abstract type AbstractPerformance end
 
-mutable struct Performance <: AbstractPerformance
+mutable struct FilterPerformance <: AbstractPerformance
     LL::Float64
     ME::Vector{Float64}
     MAE::Vector{Float64}
@@ -8,4 +8,4 @@ mutable struct Performance <: AbstractPerformance
     MSSE::Vector{Float64}
 end
 
-Performance(p::Integer) = Performance(0.0, zeros(p), zeros(p), zeros(p), zeros(p))
+FilterPerformance(p::Integer) = FilterPerformance(0.0, zeros(p), zeros(p), zeros(p), zeros(p))

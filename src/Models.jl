@@ -30,7 +30,7 @@ mutable struct Filter <: AbstractFilter
     y::Vector{Float64}
     errors::Vector{Float64}
     scaled::Vector{Float64}
-    performance::Performance
+    performance::FilterPerformance
     
     function Filter(param::PARAM) where {PARAM <: AbstractParameters}
 
@@ -38,7 +38,7 @@ mutable struct Filter <: AbstractFilter
 
         m, P, S, μ, Σ = predict(param)
 
-        perf = Performance(p)
+        perf = FilterPerformance(p)
 
         print(typeof(Σ))
 

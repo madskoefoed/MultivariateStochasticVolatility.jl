@@ -86,7 +86,7 @@ function predict(param::Parameters)
     return m, P, S, μ, Σ
 end
 
-### Performance ###
+### FilterPerformance ###
 function performance!(model::AbstractFilter)
     a = 1/model.obs
     b = 1 - a
